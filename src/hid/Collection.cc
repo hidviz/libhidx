@@ -1,4 +1,4 @@
-#include "libhidx/hid/Collection.hh"
+#include <libhidx/hid/Collection.hh>
 
 namespace libhidx {
 namespace hid {

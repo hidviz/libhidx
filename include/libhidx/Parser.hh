@@ -1,7 +1,7 @@
 #ifndef LIBHIDX_PARSER
 #define LIBHIDX_PARSER
 
-#include "libhidx/hid/Control.hh"
+#include <libhidx/hid/Control.hh>
 
 #include <vector>
 #include <map>

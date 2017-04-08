@@ -1,4 +1,4 @@
-#include "libhidx/Usages.hh"
+#include <libhidx/Usages.hh>
 
 #include <sstream>
 

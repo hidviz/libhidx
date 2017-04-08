@@ -1,7 +1,7 @@
 #ifndef LIBHIDX_LIBHIDXFACTORY_HH
 #define LIBHIDX_LIBHIDXFACTORY_HH
 
-#include "libhidx/LibHidx.hh"
+#include <libhidx/LibHidx.hh>
 
 namespace libhidx {
 

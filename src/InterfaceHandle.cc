@@ -1,5 +1,5 @@
 #include <iostream>
-#include "libhidx/InterfaceHandle.hh"
+#include <libhidx/InterfaceHandle.hh>
 
 namespace libhidx {
 

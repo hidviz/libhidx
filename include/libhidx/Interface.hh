@@ -3,7 +3,7 @@
 
 #include "Device.hh"
 
-#include "libhidx/hid/Item.hh"
+#include <libhidx/hid/Item.hh>
 
 #include <libusb-1.0/libusb.h>
 

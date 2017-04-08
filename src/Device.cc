@@ -1,6 +1,6 @@
-#include "libhidx/Device.hh"
+#include <libhidx/Device.hh>
 
-#include "libhidx/InterfaceHandle.hh"
+#include <libhidx/InterfaceHandle.hh>
 
 namespace libhidx {
 

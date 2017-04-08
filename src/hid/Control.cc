@@ -1,4 +1,4 @@
-#include "libhidx/hid/Control.hh"
+#include <libhidx/hid/Control.hh>
 
 #include <algorithm>
 

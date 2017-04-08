@@ -1,7 +1,7 @@
-#include "libhidx/Parser.hh"
+#include <libhidx/Parser.hh>
 
-#include "libhidx/hid/Collection.hh"
-#include "libhidx/hid/Control.hh"
+#include <libhidx/hid/Collection.hh>
+#include <libhidx/hid/Control.hh>
 
 namespace libhidx {
     static uint16_t get_unaligned_le16(const void* p) {

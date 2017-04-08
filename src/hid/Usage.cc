@@ -1,7 +1,7 @@
-#include "libhidx/hid/Usage.hh"
+#include <libhidx/hid/Usage.hh>
 
-#include "libhidx/Usages.hh"
-#include "libhidx/hid/Control.hh"
+#include <libhidx/Usages.hh>
+#include <libhidx/hid/Control.hh>
 
 #include <stdexcept>
 #include <limits>
