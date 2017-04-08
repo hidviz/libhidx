@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.5)
-project(libhidx VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.2)
+project(libhidx VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/")
 
@@ -31,6 +31,10 @@ target_include_directories(hidx PUBLIC
 target_link_libraries(hidx
         libusb-1.0
         Threads::Threads)
+
+target_compile_features(hidx PUBLIC
+        cxx_relaxed_constexpr #this should force c++14
+        )
 
 ## 'make install' to the correct location
 #install(TARGETS hidx EXPORT LibHidxConfig
