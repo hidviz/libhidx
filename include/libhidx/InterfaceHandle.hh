@@ -6,6 +6,11 @@
 
 namespace libhidx {
 
+    class ConnectionException : public std::runtime_error {
+    public:
+        ConnectionException(const std::string& err) : std::runtime_error{err}{}
+    };
+
     class InterfaceHandle {
     public:
         ~InterfaceHandle();

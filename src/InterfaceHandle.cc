@@ -8,20 +8,20 @@ namespace libhidx {
 
         auto status = libusb_open(m_interface.getDevice().getPtr(), &m_handle);
         if(status){
-            std::cerr << "libusb_open failed: " << status << std::endl;
+            throw ConnectionException{"Opening the device failed: " + std::to_string(status)};
         }
 
         if(libusb_kernel_driver_active(m_handle, m_ifaceNumber)){
             auto s = libusb_detach_kernel_driver(m_handle, m_ifaceNumber);
             if(s){
-                std::cerr << "libusb_detach_kernel_driver: " << s << std::endl;
+                throw ConnectionException{"Detaching the kernel driver from device failed: " + std::to_string(status)};
             }
         }
 
         status = libusb_claim_interface(m_handle, m_ifaceNumber);
 
         if(status){
-            std::cerr << "libusb_claim_interface failed: " << status << std::endl;
+            throw ConnectionException{"Claiming the interface failed: " + std::to_string(status)};
         }
     }
 
@@ -30,7 +30,7 @@ namespace libhidx {
 
         status = libusb_release_interface(m_handle, m_ifaceNumber);
         if(status){
-            std::cerr << "libusb_release_interface failed: " << status  << std::endl;
+            std::cerr << "Releasing the interface failed: " << std::to_string(status) << std::endl;
         }
         libusb_attach_kernel_driver(m_handle, m_ifaceNumber);
         libusb_close(m_handle);
