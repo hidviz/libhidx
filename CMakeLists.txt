@@ -35,6 +35,7 @@ target_link_libraries(hidx
 target_compile_features(hidx PUBLIC
         cxx_relaxed_constexpr #this should force c++14
         )
+target_compile_options(hidx PRIVATE $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>: -Wall -Wextra>)
 
 ## 'make install' to the correct location
 #install(TARGETS hidx EXPORT LibHidxConfig
