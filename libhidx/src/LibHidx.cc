@@ -29,11 +29,11 @@ namespace libhidx {
                 subprocess::output{subprocess::PIPE}
         );
         // this is weird, but it works
-//        m_input = m_process->output();
-//        m_output = m_process->input();
+        m_input = m_process->output();
+        m_output = m_process->input();
 
-        m_input = fopen("/tmp/fromhelper", "r");
-        m_output = fopen("/tmp/tohelper", "w");
+//        m_input = fopen("/tmp/fromhelper", "r");
+//        m_output = fopen("/tmp/tohelper", "w");
 
         buffer::Init::Request initReq;
 

@@ -308,10 +308,10 @@ namespace libhidx {
     }
 
     void run() {
-//        std::ostream& out = std::cout;
-//        std::istream& in = std::cin;
-        std::ofstream out{"/tmp/fromhelper"};
-        std::ifstream in{"/tmp/tohelper"};
+        std::ostream& out = std::cout;
+        std::istream& in = std::cin;
+//        std::ofstream out{"/tmp/fromhelper"};
+//        std::ifstream in{"/tmp/tohelper"};
 
         while (true) {
 
