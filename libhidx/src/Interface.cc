@@ -1,5 +1,6 @@
 #include <libhidx/Interface.hh>
 
+#include <buffer.pb.h>
 #include <libhidx/InterfaceHandle.hh>
 #include <libhidx/Parser.hh>
 
@@ -8,24 +9,23 @@
 
 namespace libhidx {
 
-    Interface::Interface(const libusb_interface& interface, Device& device) : m_interface{interface.altsetting[0]}, m_device{device}, readingRuns{false}, stopReadingRequest{false} {
-        for(unsigned i = 0; i < m_interface.bNumEndpoints; ++i){
-            const auto& endpoint = m_interface.endpoint[i];
+    Interface::Interface(const buffer::Interface& interface, Device& device) : m_interface{interface.altsetting(0)}, m_device{device}, readingRuns{false}, stopReadingRequest{false} {
+        for(const auto& endpoint: m_interface.endpoint()){
             bool isInterrupt =
-                (endpoint.bmAttributes & LIBUSB_TRANSFER_TYPE_MASK) == LIBUSB_TRANSFER_TYPE_INTERRUPT;
+                (endpoint.attributes() & LIBUSB_TRANSFER_TYPE_MASK) == LIBUSB_TRANSFER_TYPE_INTERRUPT;
             bool isInput =
-                (endpoint.bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN;
+                (endpoint.endpointaddress() & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN;
             bool isOutput =
-                (endpoint.bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT;
+                (endpoint.endpointaddress() & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT;
 
             if(isInterrupt && isInput){
-                m_inputAddress = endpoint.bEndpointAddress;
-                m_inputMaxSize = endpoint.wMaxPacketSize;
+                m_inputAddress = endpoint.endpointaddress();
+                m_inputMaxSize = endpoint.maxpacketsize();
                 break;
             }
 
             if(isInterrupt && isOutput){
-                m_outputAddress = endpoint.bEndpointAddress;
+                m_outputAddress = endpoint.endpointaddress();
                 m_hasOutputAddress = true;
                 break;
             }
@@ -37,7 +37,7 @@ namespace libhidx {
     }
 
     bool Interface::isHid() const {
-        return m_interface.bInterfaceClass == 3;
+        return m_interface.interfaceclass() == 3;
     }
 
     hid::Item* Interface::getHidReportDesc() {
@@ -48,24 +48,21 @@ namespace libhidx {
         }
 
         constexpr uint16_t bufferLength = 1024;
-        unsigned char buffer[bufferLength];
 
         auto handle = getHandle();
-        auto size = handle->controlTransfer(
-            0x81,
-            LIBUSB_REQUEST_GET_DESCRIPTOR,
-            ((LIBUSB_DT_REPORT << 8) | 0),
-            m_interface.bInterfaceNumber,
-            buffer,
-            bufferLength,
-            1000
-        );
-        if(size <= 0){
+        auto data = handle->controlInTransfer(0x81, LIBUSB_REQUEST_GET_DESCRIPTOR, ((LIBUSB_DT_REPORT << 8) | 0),
+                                            static_cast<uint16_t>(m_interface.interfacenumber()), bufferLength, 1000);
+
+        std::string buffer;
+        int size;
+        std::tie(size, buffer) = data;
+
+        if(data.first <= 0){
             //TODO: throw an exception
             return nullptr;
         }
 
-        auto parser = Parser{buffer, static_cast<size_t>(size)};
+        auto parser = Parser{reinterpret_cast<const uint8_t*>(buffer.data()), static_cast<size_t>(size)};
 
         auto rootItem = parser.parse();
         m_hidReportDesc.reset(rootItem);
@@ -115,27 +112,22 @@ namespace libhidx {
 
         auto handle = getHandle();
 
-        std::vector<unsigned char> buffer;
-
         while(!stopReadingRequest){
-            buffer.resize(m_inputMaxSize);
-            int transferred;
-            int size = handle->interruptTransfer(
-                m_inputAddress,
-                buffer.data(),
-                m_inputMaxSize,
-                &transferred,
+            auto response = handle->interruptInTransfer(
+                static_cast<uint8_t>(m_inputAddress),
+                static_cast<uint16_t>(m_inputMaxSize),
                 1000
             );
-            buffer.resize(static_cast<size_t>(transferred));
 
-            if(size == 0) {
-                updateData(buffer);
+            if(response.retvalue() == 0) {
+                response.data();
+                std::vector<unsigned char> data{std::begin(response.data()), std::end(response.data())};
+                updateData(data);
                 if(m_listener) {
                     m_listener();
                 }
-            } else if(size == LIBUSB_ERROR_TIMEOUT){
-                // pass
+            } else if(response.retvalue() == LIBUSB_ERROR_TIMEOUT){
+                std::cerr << "Interrupt transfer timeout" << std::endl;
             } else {
                 std::cerr << "Interrupt transfer fail" << std::endl;
             }
@@ -213,25 +205,22 @@ namespace libhidx {
     void Interface::sendOutputReport(const std::vector<unsigned char>& data) {
         auto handle = getHandle();
         if(m_hasOutputAddress) {
-            handle->interruptTransfer(
-                    m_outputAddress,
-                    const_cast<unsigned char*>(data.data()),
-                    static_cast<int>(data.size()),
-                    nullptr,
+            handle->interruptOutTransfer(
+                    static_cast<unsigned char>(m_outputAddress),
+                    data.data(),
+                    data.size(),
                     1000
             );
         } else {
 
-            handle->controlTransfer(
-                    LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE | LIBUSB_ENDPOINT_OUT,
-                    0x09/*HID Set_Report*/,
-                    (2/*HID output*/ << 8) | /*report_number*/ 0,
-                    m_interface.bInterfaceNumber,
-                    const_cast<unsigned char*>(data.data()),
-                    static_cast<uint16_t>(data.size()),
-                    1000
-            );
+            handle->controlOutTransfer(LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE | LIBUSB_ENDPOINT_OUT, 0x09,
+                                    (2/*HID output*/ << 8) | /*report_number*/ 0,
+                                    static_cast<uint16_t>(m_interface.interfacenumber()), data.data(), data.size(), 500);
         }
+    }
+
+    uint32_t Interface::getNumber() const {
+        return m_interface.interfacenumber();
     }
 
 

@@ -13,18 +13,23 @@
 
 namespace libhidx {
 
+    namespace buffer {
+        class Interface;
+        class InterfaceDescriptor;
+    };
+
     class Device;
     class InterfaceHandle;
 
     class Interface {
     public:
-        Interface(const libusb_interface&, Device& device);
+        Interface(const buffer::Interface&, Device& device);
         Interface(const Interface&) = delete;
         ~Interface();
 
         bool isHid() const;
-        auto getNumber() const {return m_interface.bInterfaceNumber;}
-        const auto& getDevice() const {return m_device;}
+        uint32_t getNumber() const;
+        auto& getDevice() {return m_device;}
         std::string getName() const;
         std::shared_ptr<InterfaceHandle> getHandle();
         const auto& getDesc() const {return m_interface;}
@@ -37,7 +42,7 @@ namespace libhidx {
         void stopReading();
 
     private:
-        const libusb_interface_descriptor& m_interface;
+        const buffer::InterfaceDescriptor& m_interface;
         Device& m_device;
         std::weak_ptr<InterfaceHandle> m_handle;
 
@@ -46,9 +51,9 @@ namespace libhidx {
         std::atomic_bool stopReadingRequest;
         void runner();
 
-        uint8_t m_inputAddress = 0;
-        uint16_t m_inputMaxSize = 0;
-        uint8_t m_outputAddress = 0;
+        uint32_t m_inputAddress = 0;
+        uint32_t m_inputMaxSize = 0;
+        uint32_t m_outputAddress = 0;
         bool m_hasOutputAddress = false;
 
         std::function<void()> m_listener;

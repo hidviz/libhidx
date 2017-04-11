@@ -10,27 +10,33 @@
 #include <memory>
 
 namespace libhidx {
+    namespace buffer {
+        class DeviceDescriptor;
+        class ConfigDescriptor;
+    }
     class Interface;
+    class LibHidx;
 
     class Device {
     public:
 
-        Device(libusb_device* device);
+        Device(uint64_t handle, LibHidx& lib);
         Device(const Device&) = delete;
-        ~Device();
 
         const auto& getPtr() const { return m_device; }
-        const auto& getDesc() const { return m_descriptor; }
+        auto getDesc() const { return m_descriptor.get(); }
         const DeviceStrings& getStrings();
         const auto& getInterfaces() const {return m_interfaces;}
+        auto& getLib() {return m_lib;}
 
 
     private:
-        libusb_device* m_device = nullptr;
-        libusb_device_descriptor m_descriptor;
-        libusb_config_descriptor* m_config_descriptor = nullptr;
+        uint64_t m_device = 0;
+        std::unique_ptr<const buffer::DeviceDescriptor> m_descriptor;
+        std::unique_ptr<const buffer::ConfigDescriptor> m_config_descriptor;
         std::unique_ptr<DeviceStrings> m_strings;
         std::vector<std::unique_ptr<Interface>> m_interfaces;
+        LibHidx& m_lib;
 
         void fillInterfaces();
 

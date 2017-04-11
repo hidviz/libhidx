@@ -31,13 +31,13 @@ namespace libhidx {
         return snto32(value, n);
     }
 
-    Parser::Parser(uint8_t* start, std::size_t size)
+    Parser::Parser(const uint8_t* start, std::size_t size)
         : m_start{start}, m_size{size} {}
 
 
     hid::Item* Parser::parse() {
         auto start = m_start;
-        uint8_t* end;
+        const uint8_t* end;
 
         m_collectionStack.emplace_back(new hid::Collection{});
 
@@ -71,12 +71,13 @@ namespace libhidx {
 
     }
 
-    uint8_t* Parser::fetchItem(uint8_t* start, uint8_t* end) {
+    const uint8_t* Parser::fetchItem(const uint8_t* start, const uint8_t* end) {
         uint8_t b;
         m_currentItem = Item{};
 
-        if ((end - start) <= 0)
+        if ((end - start) <= 0) {
             return nullptr;
+        }
 
         b = *start++;
 
@@ -87,14 +88,16 @@ namespace libhidx {
 
             m_currentItem.isLongFormat = true;
 
-            if ((end - start) < 2)
+            if ((end - start) < 2) {
                 return nullptr;
+            }
 
             m_currentItem.size = *start++;
             m_currentItem.tag = *start++;
 
-            if ((end - start) < m_currentItem.size)
+            if ((end - start) < m_currentItem.size) {
                 return nullptr;
+            }
 
             m_currentItem.data.longdata = start;
             start += m_currentItem.size;
@@ -109,22 +112,25 @@ namespace libhidx {
                 return start;
 
             case 1:
-                if ((end - start) < 1)
+                if ((end - start) < 1) {
                     return nullptr;
+                }
                 m_currentItem.data.u8 = *start++;
                 return start;
 
             case 2:
-                if ((end - start) < 2)
+                if ((end - start) < 2) {
                     return nullptr;
+                }
                 m_currentItem.data.u16 = get_unaligned_le16(start);
                 start = (uint8_t*) ((uint16_t*) start + 1);
                 return start;
 
             case 3:
                 m_currentItem.size++;
-                if ((end - start) < 4)
+                if ((end - start) < 4) {
                     return nullptr;
+                }
                 m_currentItem.data.u32 = get_unaligned_le32(start);
                 start = (uint8_t*) ((uint32_t*) start + 1);
                 return start;

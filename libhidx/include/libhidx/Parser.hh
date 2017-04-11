@@ -23,7 +23,7 @@ namespace libhidx {
 
     class Parser {
     public:
-        Parser(uint8_t* start, std::size_t size);
+        Parser(const uint8_t* start, std::size_t size);
         hid::Item* parse();
 
     private:
@@ -98,7 +98,7 @@ namespace libhidx {
             uint8_t size = 0;
 
             union {
-                uint8_t* longdata;
+                const uint8_t* longdata;
                 uint8_t u8;
                 uint16_t u16;
                 uint32_t u32;
@@ -133,13 +133,13 @@ namespace libhidx {
         Global m_global;
         std::vector<Global> m_globalStack;
 
-        uint8_t * const m_start = nullptr;
+        const uint8_t * const m_start = nullptr;
         const std::size_t m_size = 0;
 
         std::map<std::pair<unsigned, hid::Control::Type>, std::size_t> m_reportSizes;
         std::vector<hid::Collection*> m_collectionStack;
 
-        uint8_t* fetchItem(uint8_t* start, uint8_t* end);
+        const uint8_t* fetchItem(const uint8_t* start, const uint8_t* end);
         void parseMainItem();
         void openCollection();
         void closeCollection();
