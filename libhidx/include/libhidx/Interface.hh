@@ -60,7 +60,7 @@ namespace libhidx {
 
         std::unique_ptr<hid::Item> m_hidReportDesc;
 
-        void updateData(const std::vector<unsigned char>& data);
+        void updateData(std::vector<unsigned char>&& data);
         void sendOutputReport(const std::vector<unsigned char>& data);
     };
 

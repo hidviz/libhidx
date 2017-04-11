@@ -13,7 +13,7 @@ namespace hid {
 
     public:
         Control(Item* parent = nullptr) : Item{parent} {}
-        void setData(const std::vector<unsigned char> &rawData);
+        void setData(const std::vector<unsigned char>& rawData, unsigned reportId);
         uint32_t getData() const;
 
 

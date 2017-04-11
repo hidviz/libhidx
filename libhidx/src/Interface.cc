@@ -120,9 +120,8 @@ namespace libhidx {
             );
 
             if(response.retvalue() == 0) {
-                response.data();
                 std::vector<unsigned char> data{std::begin(response.data()), std::end(response.data())};
-                updateData(data);
+                updateData(std::move(data));
                 if(m_listener) {
                     m_listener();
                 }
@@ -154,15 +153,23 @@ namespace libhidx {
         m_listener = listener;
     }
 
-    void Interface::updateData(const std::vector<unsigned char>& data) {
+    void Interface::updateData(std::vector<unsigned char>&& dataRef) {
         auto reportDesc = getHidReportDesc();
 
-        reportDesc->forEach([&data](hid::Item* item){
+        auto data = std::move(dataRef);
+        unsigned reportId = 0;
+
+        if(reportDesc->isNumbered()){
+            reportId = data.front();
+            data.erase(std::begin(data));
+        }
+
+        reportDesc->forEach([&data, reportId](hid::Item* item){
             auto control = dynamic_cast<hid::Control*>(item);
             if(!control){
                 return;
             }
-            control->setData(data);
+            control->setData(data, reportId);
         });
     }
 
