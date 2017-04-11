@@ -61,6 +61,15 @@ namespace libhidx {
             auto device = reinterpret_cast<uint64_t>(deviceList[i]);
             response.add_devicelist(device);
         }
+
+        response.set_listhandle(reinterpret_cast<uint64_t>(deviceList));
+    }
+
+    void processMessage(const buffer::FreeDeviceList::Request& request, buffer::FreeDeviceList::Response&) {
+        libusb_free_device_list(
+            reinterpret_cast<libusb_device**>(request.listhandle()),
+            request.unrefdevices()
+        );
     }
 
     void processMessage(const buffer::GetDeviceDescriptor::Request& request, buffer::GetDeviceDescriptor::Response& response) {
@@ -327,6 +336,7 @@ namespace libhidx {
             const std::map<MessageId, std::string (*)(const std::string& msg)> functions = {
                     {MessageId::init, parseAndProcessMessage<buffer::Init>},
                     {MessageId::getDeviceList, parseAndProcessMessage<buffer::GetDeviceList>},
+                    {MessageId::freeDeviceList, parseAndProcessMessage<buffer::FreeDeviceList>},
                     {MessageId::getDeviceDescriptor, parseAndProcessMessage<buffer::GetDeviceDescriptor>},
                     {MessageId::getActiveConfigDescriptor, parseAndProcessMessage<buffer::GetActiveConfigDescriptor>},
                     {MessageId::open, parseAndProcessMessage<buffer::Open>},

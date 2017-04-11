@@ -20,7 +20,7 @@ namespace libhidx {
     };
 
     enum class MessageId : uint8_t {
-        init, getDeviceList,
+        init, getDeviceList, freeDeviceList,
         getDeviceDescriptor, getActiveConfigDescriptor,
         open, close,
         kernelDriverActive, detachKernelDriver, attachKernelDriver,

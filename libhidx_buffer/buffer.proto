@@ -16,6 +16,18 @@ message GetDeviceList {
     message Response {
         required int64 retValue = 1;
         repeated uint64 deviceList = 2;
+        optional uint64 listHandle = 3;
+    }
+}
+
+message FreeDeviceList {
+    message Request {
+        required uint64 listHandle = 1;
+        required int32 unrefDevices = 2;
+    }
+
+    message Response {
+
     }
 }
 

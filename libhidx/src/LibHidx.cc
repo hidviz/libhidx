@@ -45,18 +45,38 @@ namespace libhidx {
     }
 
     LibHidx::~LibHidx() {
-        m_devices.clear();
-//TODO        libusb_free_device_list(m_deviceList, 0);
+        freeDevices();
+
         m_process->kill();
         // TODO call exit
     }
 
-    void LibHidx::loadDevices() {
-        // TODO free device list
+    void LibHidx::reloadDevices() {
+        freeDevices();
+
         auto response = sendMessage<buffer::GetDeviceList>(MessageId::getDeviceList, {});
 
         for(const auto& deviceHandle: response.devicelist()){
             m_devices.emplace_back(std::make_unique<Device>(deviceHandle, *this));
+        }
+
+        m_listHandle = response.listhandle();
+    }
+
+    void LibHidx::loadDevices() {
+        if(!m_listHandle){
+            reloadDevices();
+        }
+    }
+
+    void LibHidx::freeDevices()  {
+        m_devices.clear();
+        if (m_listHandle) {
+            buffer::FreeDeviceList::Request freeDeviceListReq;
+            freeDeviceListReq.set_listhandle(m_listHandle);
+            freeDeviceListReq.set_unrefdevices(1);
+            sendMessage<buffer::FreeDeviceList>(MessageId::freeDeviceList, freeDeviceListReq);
+            m_listHandle = 0;
         }
     }
 

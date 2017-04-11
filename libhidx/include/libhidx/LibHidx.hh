@@ -37,35 +37,10 @@ namespace libhidx {
         LibHidx(const LibHidx&) = delete;
         ~LibHidx();
 
+        void reloadDevices();
         void loadDevices();
+        void freeDevices();
         const auto& getDevices(){return m_devices;}
-
-//        void sendMessage(MessageId messageId, const ::google::protobuf::Message& msg);
-//        template <typename T>
-//        T receiveResponse() {
-//            constexpr size_t LENGTH_LENGTH = 4;
-//            auto lengthStr = recvN(m_input, LENGTH_LENGTH);
-//            auto length = std::stoul(lengthStr);
-//
-//            auto responseStr = recvN(m_input, length);
-//            T response;
-//            response.ParseFromString(responseStr);
-//
-//            recvN(m_input, 1);
-//
-//            return response;
-//        }
-
-        template<typename Msg>
-        void sendMessage(MessageId messageId,
-                         std::function<void(typename Msg::Request&)> requestFunction,
-                         std::function<void(const typename Msg::Response&)> responseFunction
-        ){
-            typename Msg::Request request;
-            requestFunction(request);
-            auto response = sendMessage<Msg>(messageId, request);
-            responseFunction(response);
-        }
 
         template<typename Msg>
         typename Msg::Response sendMessage(MessageId messageId, const typename Msg::Request& request){
@@ -101,6 +76,7 @@ namespace libhidx {
         FILE* m_input;
         FILE* m_output;
         std::mutex m_commMutex;
+        uint64_t m_listHandle = 0;
     };
 
 }
