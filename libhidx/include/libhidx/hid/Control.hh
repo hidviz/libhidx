@@ -33,6 +33,7 @@ namespace hid {
         auto getPhysicalMinimum() const {return m_physicalMinimum;}
         auto getPhysicalMaximum() const {return m_physicalMaximum;}
         auto getUnitExponent() const {return m_unitExponent;}
+        auto getReportId() const {return m_reportId;}
 
     private:
         std::size_t m_offset = 0;
@@ -47,6 +48,7 @@ namespace hid {
         int32_t m_physicalMaximum = 0;
         int32_t m_unitExponent = 0;
         unsigned m_unit = 0;
+        unsigned int m_reportId = 0;
 
         uint32_t extractData(const std::vector<unsigned char> &vector);
 

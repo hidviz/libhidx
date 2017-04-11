@@ -64,7 +64,20 @@ namespace libhidx {
                 if (m_local.delimiterDepth > 0) {
                     throw ParserError{"Delimiters are not balanced."};
                 }
-                return m_collectionStack.front();
+                auto& topItem = m_collectionStack.front();
+                bool numbered = false;
+                topItem->forEach([&numbered](auto item){
+                    auto control = dynamic_cast<hid::Control*>(item);
+                    if(control){
+                        if(control->getReportId()){
+                            numbered = true;
+                        }
+                    }
+                });
+
+                topItem->m_numbered = numbered;
+
+                return topItem;
             }
         }
         throw ParserError{"Unexpected parser error."};
@@ -237,6 +250,7 @@ namespace libhidx {
         field->m_physicalMaximum = m_global.physicalMaximum;
         field->m_unitExponent = m_global.unitExponent;
         field->m_unit = m_global.unit;
+        field->m_reportId = m_global.reportId;
     }
 
     void Parser::parseGlobalItem() {

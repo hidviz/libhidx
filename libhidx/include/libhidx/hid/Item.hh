@@ -5,9 +5,11 @@
 #include <memory>
 
 namespace libhidx {
+    class Parser;
 namespace hid {
 
     class Item {
+        friend class libhidx::Parser;
     public:
         Item(Item* parent = nullptr) : m_parent{parent}{}
         Item(const Item&) = delete;
@@ -20,10 +22,16 @@ namespace hid {
         Item* parentItem();
         size_t row() const;
         void forEach(std::function<void(Item*)>);
+        auto isNumbered(){return topItem()->m_numbered;}
+
+    protected:
+        Item* topItem();
 
     private:
         std::vector<std::unique_ptr<Item>> m_children;
-        Item* m_parent;
+        Item* m_parent = nullptr;
+        bool m_numbered = false;
+
     };
 }
 }

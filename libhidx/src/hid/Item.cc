@@ -41,6 +41,12 @@ namespace hid {
         }
     }
 
+    Item* Item::topItem() {
+        if(m_parent)
+            return m_parent->topItem();
+        return this;
+    }
+
 
 }
 }
