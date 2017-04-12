@@ -47,8 +47,8 @@ namespace libhidx {
         std::weak_ptr<InterfaceHandle> m_handle;
 
         std::thread readingThread;
-        std::atomic_bool readingRuns;
-        std::atomic_bool stopReadingRequest;
+        std::atomic_bool readingRuns{false};
+        std::atomic_bool stopReadingRequest{false};
         void runner();
 
         uint32_t m_inputAddress = 0;
