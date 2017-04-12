@@ -62,7 +62,7 @@ namespace hid {
         auto logicalRange = static_cast<double>(logMax - logMin);
         auto physicalRange = static_cast<double>(phyMax - phyMin);
 
-        auto resolution = logicalRange / physicalRange * std::pow(10., unitExp);
+        auto resolution = physicalRange / logicalRange * std::pow(10., unitExp);
 
         return logical * resolution;
     }
