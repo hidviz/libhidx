@@ -47,6 +47,10 @@ namespace hid {
     }
 
     double Usage::logicalToPhysical(int64_t logical) {
+        if(!m_control->getUnit()){
+            return logical;
+        }
+
         auto logMin = m_control->getLogicalMinimum();
         auto logMax = m_control->getLogicalMaximum();
         auto phyMin = m_control->getPhysicalMinimum();

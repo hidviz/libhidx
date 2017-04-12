@@ -34,6 +34,7 @@ namespace hid {
         auto getPhysicalMaximum() const {return m_physicalMaximum;}
         auto getUnitExponent() const {return m_unitExponent;}
         auto getReportId() const {return m_reportId;}
+        auto getUnit() const {return m_unit;}
 
     private:
         std::size_t m_offset = 0;
