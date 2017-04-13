@@ -15,8 +15,7 @@ namespace hid {
         }
 
         auto data = extractData(rawData);
-        //TODO: magic constant!
-        if(m_flags & 2){
+        if(isVariable()){
             // variable
             for(unsigned i = 0; i < m_reportCount; ++i){
                 uint32_t usageData = extractVariableUsageData(data, i);

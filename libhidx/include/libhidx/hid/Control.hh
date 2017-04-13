@@ -36,6 +36,25 @@ namespace hid {
         auto getReportId() const {return m_reportId;}
         auto getUnit() const {return m_unit;}
 
+        enum Flag {
+            CONSTANT = 0x01,
+            VARIABLE = 0x02,
+            RELATIVE = 0x04,
+            WRAP = 0x08,
+            NONLINEAR = 0x10,
+            NO_PREFERRED = 0x20,
+            NULL_STATE = 0x40,
+            VOLATILE = 0x80,
+        };
+        bool isConstant() const {return (m_flags & Flag::CONSTANT) != 0;}
+        bool isVariable() const {return (m_flags & Flag::VARIABLE) != 0;}
+        bool isRelative() const {return (m_flags & Flag::RELATIVE) != 0;}
+        bool isWrap() const {return (m_flags & Flag::WRAP) != 0;}
+        bool isNonlinear() const {return (m_flags & Flag::NONLINEAR) != 0;}
+        bool isNoPreferred() const {return (m_flags & Flag::NO_PREFERRED) != 0;}
+        bool isNullState() const {return (m_flags & Flag::NULL_STATE) != 0;}
+        bool isVolatile() const {return (m_flags & Flag::VOLATILE) != 0;}
+
     private:
         std::size_t m_offset = 0;
         std::vector<std::unique_ptr<Usage>> m_usages;
