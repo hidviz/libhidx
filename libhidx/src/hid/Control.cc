@@ -66,7 +66,7 @@ namespace hid {
         return (data >> i) & mask;
     }
 
-    Usage * Control::findUsageByValue(uint32_t value) {
+    Usage* Control::findUsageByValue(uint32_t value) {
         auto it = std::find_if(begin(m_usages), end(m_usages), [&value](const auto &usage){
             return (usage->getId() & 0xff) == value;
         });

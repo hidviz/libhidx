@@ -38,7 +38,7 @@ namespace hid {
 
     private:
         std::size_t m_offset = 0;
-        std::vector<std::unique_ptr<Usage>> m_usages{};
+        std::vector<std::unique_ptr<Usage>> m_usages;
         uint32_t m_flags = 0;
         Type m_reportType;
         unsigned m_reportSize = 0;

@@ -19,8 +19,8 @@ namespace hid {
         auto getLogicalValue() const { return m_logicalValue; }
         void setLogicalValue(uint32_t rawLogicalValue);
         bool setLogicalValueFromUser(const std::string& dataString);
-
         auto getPhysicalValue() const {return m_physicalValue;}
+        const auto& getControl() const {return *m_control;}
 
 
     private:
