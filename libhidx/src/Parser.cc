@@ -221,23 +221,21 @@ namespace libhidx {
 
         reportSize += m_global.reportSize * m_global.reportCount;
 
-        if (!m_local.usagesStack.size()){ /* Ignore padding fields */
-            return;
-        }
-
         auto usages = std::max(
             static_cast<unsigned>(m_local.usagesStack.size()),
             m_global.reportCount
         );
 
-        for (unsigned i = 0; i < usages; i++) {
-            unsigned j = i;
-            /* Duplicate the last usage we parsed if we have excess values */
-            if (i >= m_local.usagesStack.size()){
-                j = static_cast<unsigned>(m_local.usagesStack.size()) - 1;
-            }
+        if(m_local.usagesStack.size() > 0) {
+            for (unsigned i = 0; i < usages; i++) {
+                unsigned j = i;
+                /* Duplicate the last usage we parsed if we have excess values */
+                if (i >= m_local.usagesStack.size()) {
+                    j = static_cast<unsigned>(m_local.usagesStack.size()) - 1;
+                }
 
-            field->m_usages.emplace_back(new hid::Usage{m_local.usagesStack[j], field});
+                field->m_usages.emplace_back(new hid::Usage{m_local.usagesStack[j], field});
+            }
         }
 
         field->m_flags = m_currentItem.udata();
