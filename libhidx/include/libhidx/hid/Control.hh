@@ -56,6 +56,7 @@ namespace hid {
         bool isNoPreferred() const {return (m_flags & Flag::NO_PREFERRED) != 0;}
         bool isNullState() const {return (m_flags & Flag::NULL_STATE) != 0;}
         bool isVolatile() const {return (m_flags & Flag::VOLATILE) != 0;}
+        bool isBinary() const;
 
     private:
         std::size_t m_offset = 0;

@@ -89,5 +89,9 @@ namespace hid {
 
         return data;
     }
+
+    bool Control::isBinary() const {
+        return !isVariable() ||(getLogicalMinimum() == 0 && getLogicalMaximum() == 1 && getUnit() == 0 && getUnitExponent() == 0);
+    }
 }
 }
