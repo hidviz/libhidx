@@ -23,6 +23,7 @@ namespace hid {
         size_t row() const;
         void forEach(std::function<void(Item*)>);
         auto isNumbered(){return topItem()->m_numbered;}
+        unsigned getLevel(){if(!m_parent){return 0;} else {return m_parent->getLevel() + 1;}}
 
     protected:
         Item* topItem();
