@@ -40,9 +40,10 @@ namespace hid {
         }
     }
 
-    uint32_t Control::extractData(const std::vector<unsigned char> &vector) {
+    std::vector<bool> Control::extractData(const std::vector<unsigned char>& vector) {
         auto length = m_reportCount * m_reportSize;
-        uint32_t data = 0;
+        std::vector<bool> data;
+        data.resize(length);
 
         for(unsigned i = 0; i < length; ++i){
             auto originPos = m_offset + i;
@@ -51,18 +52,21 @@ namespace hid {
 
             unsigned char byte = vector[bytePos];
             byte >>= bitPos;
-            byte &= 1;
-            data |= byte << i;
+            data[i] = (byte & 1) == 1;
         }
 
         return data;
     }
 
-    uint32_t Control::extractVariableUsageData(uint32_t data, unsigned index) {
-        auto i = index * m_reportSize;
-        auto mask = (1U << m_reportSize) - 1U;
+    uint32_t Control::extractVariableUsageData(const std::vector<bool>& data, unsigned index) {
+        auto offset = index * m_reportSize;
+        uint32_t ret = 0;
 
-        return (data >> i) & mask;
+        for(auto i = 0U; i < m_reportSize; ++i){
+            ret |= data[i + offset] << i;
+        }
+
+        return ret;
     }
 
     Usage* Control::findUsageByValue(uint32_t value) {

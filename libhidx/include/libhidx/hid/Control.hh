@@ -73,9 +73,9 @@ namespace hid {
         unsigned m_unit = 0;
         unsigned int m_reportId = 0;
 
-        uint32_t extractData(const std::vector<unsigned char> &vector);
+        std::vector<bool> extractData(const std::vector<unsigned char>& vector);
 
-        uint32_t extractVariableUsageData(uint32_t data, unsigned index);
+        uint32_t extractVariableUsageData(const std::vector<bool>& data, unsigned index);
 
         Usage* findUsageByValue(uint32_t value);
     };
