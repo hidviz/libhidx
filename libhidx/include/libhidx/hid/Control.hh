@@ -35,6 +35,8 @@ namespace hid {
         auto getUnitExponent() const {return m_unitExponent;}
         auto getReportId() const {return m_reportId;}
         auto getUnit() const {return m_unit;}
+        auto getReportSize() const {return m_reportSize;}
+        auto getReportCount() const {return m_reportCount;}
 
         enum Flag {
             CONSTANT = 0x01,
