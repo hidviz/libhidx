@@ -40,11 +40,11 @@ namespace libhidx {
         return m_interface.interfaceclass() == 3;
     }
 
-    hid::Item* Interface::getHidReportDesc() {
+    hid::Item& Interface::getHidReportDesc() {
         assert(isHid());
 
         if(m_hidReportDesc){
-            return m_hidReportDesc.get();
+            return *m_hidReportDesc.get();
         }
 
         constexpr uint16_t bufferLength = 1024;
@@ -58,8 +58,7 @@ namespace libhidx {
         std::tie(size, buffer) = data;
 
         if(data.first <= 0){
-            //TODO: throw an exception
-            return nullptr;
+            throw ConnectionException{"Libusb control transfer failed: " + std::to_string(data.first)};
         }
 
         auto parser = Parser{reinterpret_cast<const uint8_t*>(buffer.data()), static_cast<size_t>(size)};
@@ -67,7 +66,7 @@ namespace libhidx {
         auto rootItem = parser.parse();
         m_hidReportDesc.reset(rootItem);
 
-        return m_hidReportDesc.get();
+        return *m_hidReportDesc.get();
     }
 
     std::string Interface::getName() const {
@@ -154,17 +153,17 @@ namespace libhidx {
     }
 
     void Interface::updateData(std::vector<unsigned char>&& dataRef) {
-        auto reportDesc = getHidReportDesc();
+        auto& reportDesc = getHidReportDesc();
 
         auto data = std::move(dataRef);
         unsigned reportId = 0;
 
-        if(reportDesc->isNumbered()){
+        if(reportDesc.isNumbered()){
             reportId = data.front();
             data.erase(std::begin(data));
         }
 
-        reportDesc->forEach([&data, reportId](hid::Item* item){
+        reportDesc.forEach([&data, reportId](hid::Item* item){
             auto control = dynamic_cast<hid::Control*>(item);
             if(!control){
                 return;

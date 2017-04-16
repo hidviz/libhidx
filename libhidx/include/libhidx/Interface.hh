@@ -33,7 +33,7 @@ namespace libhidx {
         std::string getName() const;
         std::shared_ptr<InterfaceHandle> getHandle();
         const auto& getDesc() const {return m_interface;}
-        hid::Item* getHidReportDesc();
+        hid::Item& getHidReportDesc();
         void setReadingListener(std::function<void()>);
         void sendData();
 
