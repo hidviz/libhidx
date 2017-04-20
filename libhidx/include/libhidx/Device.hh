@@ -28,7 +28,7 @@ namespace libhidx {
         const DeviceStrings& getStrings();
         const auto& getInterfaces() const {return m_interfaces;}
         auto& getLib() {return m_lib;}
-        const auto getConfigDesc() const {return m_config_descriptor.get();}
+        auto getConfigDesc() const {return m_config_descriptor.get();}
 
 
     private:

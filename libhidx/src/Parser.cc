@@ -41,12 +41,12 @@ namespace libhidx {
 
         m_collectionStack.emplace_back(new hid::Collection{});
 
-        static std::array<void (Parser::*)(), 4> dispatchFunctions {
+        static std::array<void (Parser::*)(), 4> dispatchFunctions {{
             &Parser::parseMainItem,
             &Parser::parseGlobalItem,
             &Parser::parseLocalItem,
             &Parser::parseReservedItem,
-        };
+        }};
 
         end = m_start + m_size;
         while ((start = fetchItem(start, end)) != nullptr) {
