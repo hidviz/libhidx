@@ -11,19 +11,19 @@ namespace hid {
     class Item {
         friend class libhidx::Parser;
     public:
-        Item(Item* parent = nullptr) : m_parent{parent}{}
+        explicit Item(Item* parent = nullptr) : m_parent{parent}{}
         Item(const Item&) = delete;
         Item& operator= (const Item&) = delete;
-        virtual ~Item(){}
+        virtual ~Item() = default;
 
         void appendChild(Item* child);
         Item* child(int row);
         size_t childCount() const;
         Item* parentItem();
         size_t row() const;
-        void forEach(std::function<void(Item*)>);
+        void forEach(const std::function<void(Item*)>& function);
         auto isNumbered(){return topItem()->m_numbered;}
-        unsigned getLevel(){if(!m_parent){return 0;} else {return m_parent->getLevel() + 1;}}
+        unsigned getLevel(){if(!m_parent){return 0;} return m_parent->getLevel() + 1;}
 
     protected:
         Item* topItem();

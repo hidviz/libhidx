@@ -6,7 +6,7 @@ namespace libhidx {
 namespace hid {
 
     void Control::setData(const std::vector<unsigned char>& rawData, unsigned reportId) {
-        if(!m_usages.size()){
+        if(m_usages.empty()){
             return;
         }
 

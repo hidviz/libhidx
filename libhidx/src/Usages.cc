@@ -17,8 +17,8 @@ static std::string getVendorDefined(uint16_t usagePage, uint16_t usage){
 }
 
 std::string getHidUsageText(uint32_t usageRaw) {
-    const uint16_t usagePage = static_cast<uint16_t>(usageRaw >> 16U);
-    const uint16_t usage = static_cast<uint16_t>(usageRaw & 0xffff);
+    const auto usagePage = static_cast<uint16_t>(usageRaw >> 16U);
+    const auto usage = static_cast<uint16_t>(usageRaw & 0xffff);
 
     const char* text = nullptr;
 
@@ -213,14 +213,10 @@ std::string getHidUsageText(uint32_t usageRaw) {
 
     } else if (usagePage == 0x09) {	// Button
         return std::string{"Button "} + std::to_string(usage);
-    }
-
-    else if (usagePage == 0x0a)	// Ordinal
+    } else if (usagePage == 0x0a)	// Ordinal
     {
         return std::string{"Instance "} + std::to_string(usage);
-    }
-
-    else if (usagePage == 0x0b)	// Telephony Device
+    } else if (usagePage == 0x0b)	// Telephony Device
     {
         static const char* lookup[] = {
             0, "Phone", "Answering Machine", "Message Controls", "Handset", "Headset", "Telephony Key Pad", "Programmable Button",
@@ -270,9 +266,7 @@ std::string getHidUsageText(uint32_t usageRaw) {
             return getUnknown(usagePage, usage);
         }
         text = lookup[usage];
-    }
-
-    else if (usagePage == 0x0c)	// Consumer
+    } else if (usagePage == 0x0c)	// Consumer
     {
         static const char* lookup[] = {
             0, "Consumer Control", "Numeric Key Pad", "Programmable Buttons", "Microphone", "Headphone", "Graphic Equalizer", 0,
@@ -441,9 +435,7 @@ std::string getHidUsageText(uint32_t usageRaw) {
             return getUnknown(usagePage, usage);
         }
         text = lookup[usage];;
-    }
-
-    else if (usagePage == 0x0d)	// Digitizers
+    } else if (usagePage == 0x0d)	// Digitizers
     {
         static const char* lookup[] = {
             0, "Digitizer", "Pen", "Light Pen", "Touch Screen", "Touch Pad", "White Board", "Coordinate Measuring",
@@ -501,9 +493,7 @@ std::string getHidUsageText(uint32_t usageRaw) {
             return getUnknown(usagePage, usage);
         }
         text = lookup[usage];
-    }
-
-    else if (usagePage == 0x20)	// Sensor
+    } else if (usagePage == 0x20)	// Sensor
     {
         static const char* lookup[] = {
             0, "Sensor", 0, 0, 0, 0, 0, 0,
@@ -543,9 +533,7 @@ std::string getHidUsageText(uint32_t usageRaw) {
             return getUnknown(usagePage, usage);
         }
         text = lookup[usageWithoutModifier];
-    }
-
-    else if (usagePage == 0x40)	// Medical Instrument
+    } else if (usagePage == 0x40)	// Medical Instrument
     {
         static const char* lookup[] = {
             0, "Medical Ultrasound", 0, 0, 0, 0, 0, 0,

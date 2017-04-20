@@ -34,7 +34,7 @@ namespace hid {
         return static_cast<size_t>(it - begin(parent->m_children));
     }
 
-    void Item::forEach(std::function<void(Item*)> f) {
+    void Item::forEach(const std::function<void(Item*)>& f) {
         f(this);
         for(const auto& child: m_children){
             child->forEach(f);

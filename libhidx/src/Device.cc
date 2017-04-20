@@ -37,7 +37,7 @@ namespace libhidx {
             m_strings = std::make_unique<DeviceStrings>(deviceHandle->readStrings());
         }
 
-        return *m_strings.get();
+        return *m_strings;
     }
 
     void Device::fillInterfaces() {

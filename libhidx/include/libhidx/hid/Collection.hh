@@ -8,10 +8,10 @@ namespace hid {
     class Collection : public Item {
 
     public:
-        Collection(Item* parent = nullptr) : Item{parent} {}
+        explicit Collection(Item* parent = nullptr) : Item{parent} {}
 
-        uint32_t m_type;
-        unsigned m_usage;
+        uint32_t m_type = 0;
+        unsigned m_usage = 0;
     };
 }
 }

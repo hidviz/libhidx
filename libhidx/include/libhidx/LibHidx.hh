@@ -26,7 +26,7 @@ namespace libhidx {
 
     class LibHidxError : public std::runtime_error {
     public:
-        LibHidxError(const std::string& str) : std::runtime_error{str}{}
+        explicit LibHidxError(const std::string& str) : std::runtime_error{str}{}
     };
 
     class Device;

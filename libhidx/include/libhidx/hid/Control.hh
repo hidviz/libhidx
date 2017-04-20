@@ -12,12 +12,13 @@ namespace hid {
         friend class libhidx::Parser;
 
     public:
-        Control(Item* parent = nullptr) : Item{parent} {}
+        explicit Control(Item* parent = nullptr) : Item{parent} {}
         void setData(const std::vector<unsigned char>& rawData, unsigned reportId);
         uint32_t getData() const;
 
 
         enum class Type {
+            UNDEFINED = -1,
             INPUT = 0,
             OUTPUT  = 1,
             FEATURE = 2
@@ -62,7 +63,7 @@ namespace hid {
         std::size_t m_offset = 0;
         std::vector<std::unique_ptr<Usage>> m_usages;
         uint32_t m_flags = 0;
-        Type m_reportType;
+        Type m_reportType = Type::UNDEFINED;
         unsigned m_reportSize = 0;
         unsigned m_reportCount = 0;
         int32_t m_logicalMinimum = 0;

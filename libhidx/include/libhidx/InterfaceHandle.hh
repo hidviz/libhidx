@@ -11,7 +11,7 @@ namespace libhidx {
 
     class ConnectionException : public std::runtime_error {
     public:
-        ConnectionException(const std::string& err) : std::runtime_error{err}{}
+        explicit ConnectionException(const std::string& err) : std::runtime_error{err}{}
     };
 
     class InterfaceHandle {
@@ -46,7 +46,7 @@ namespace libhidx {
         friend class Interface;
 
     private:
-        InterfaceHandle(Interface& interface);
+        explicit InterfaceHandle(Interface& interface);
         Interface& m_interface;
         uint32_t m_ifaceNumber;
 

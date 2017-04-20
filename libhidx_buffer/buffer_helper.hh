@@ -16,7 +16,7 @@ namespace libhidx {
 
     class IOException : public std::runtime_error {
     public:
-        IOException(const std::string& str) : std::runtime_error{str} {}
+        explicit IOException(const std::string& str) : std::runtime_error{str} {}
     };
 
     enum class MessageId : uint8_t {
