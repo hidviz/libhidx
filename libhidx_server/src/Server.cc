@@ -1,3 +1,5 @@
+#include <libhidx/server/Server.hh>
+
 #include <libusb-1.0/libusb.h>
 #include <iostream>
 #include <vector>
@@ -11,9 +13,7 @@
 #include <unistd.h>
 
 namespace libhidx {
-
-    libusb_context* ctx;
-    libusb_device** deviceList;
+namespace server {
 
     std::string recvN(std::istream& stream, size_t n) {
         std::vector<char> buffer;
@@ -46,12 +46,15 @@ namespace libhidx {
     }
 
     void processMessage(const buffer::Init::Request&, buffer::Init::Response& response) {
+        libusb_context* ctx = nullptr;
         auto status = libusb_init(&ctx);
         response.set_retvalue(status);
+        response.set_ctx(reinterpret_cast<uint64_t>(ctx));
     }
 
-    void processMessage(const buffer::GetDeviceList::Request&, buffer::GetDeviceList::Response& response) {
-        auto status = libusb_get_device_list(ctx, &deviceList);
+    void processMessage(const buffer::GetDeviceList::Request& request, buffer::GetDeviceList::Response& response) {
+        libusb_device** deviceList = nullptr;
+        auto status = libusb_get_device_list(reinterpret_cast<libusb_context*>(request.ctx()), &deviceList);
         response.set_retvalue(status);
         if(status < 0){
             return;
@@ -313,7 +316,7 @@ namespace libhidx {
         typename T::Response response;
         processMessage(request, response);
 
-        return bufferCreate(response);
+        return response.SerializeAsString();
     }
 
     void run() {
@@ -333,36 +336,47 @@ namespace libhidx {
                 break;
             }
 
-            const std::map<MessageId, std::string (*)(const std::string& msg)> functions = {
-                    {MessageId::init, parseAndProcessMessage<buffer::Init>},
-                    {MessageId::getDeviceList, parseAndProcessMessage<buffer::GetDeviceList>},
-                    {MessageId::freeDeviceList, parseAndProcessMessage<buffer::FreeDeviceList>},
-                    {MessageId::getDeviceDescriptor, parseAndProcessMessage<buffer::GetDeviceDescriptor>},
-                    {MessageId::getActiveConfigDescriptor, parseAndProcessMessage<buffer::GetActiveConfigDescriptor>},
-                    {MessageId::open, parseAndProcessMessage<buffer::Open>},
-                    {MessageId::close, parseAndProcessMessage<buffer::Close>},
-                    {MessageId::kernelDriverActive, parseAndProcessMessage<buffer::KernelDriverActive>},
-                    {MessageId::detachKernelDriver, parseAndProcessMessage<buffer::DetachKernelDriver>},
-                    {MessageId::attachKernelDriver, parseAndProcessMessage<buffer::AttachKernelDriver>},
-                    {MessageId::claimInterface, parseAndProcessMessage<buffer::ClaimInterface>},
-                    {MessageId::releaseInterface, parseAndProcessMessage<buffer::ReleaseInterface>},
-                    {MessageId::getStringDescriptorAscii, parseAndProcessMessage<buffer::GetStringDescriptorAscii>},
-                    {MessageId::controlOutTransfer, parseAndProcessMessage<buffer::ControlOutTransfer>},
-                    {MessageId::controlInTransfer, parseAndProcessMessage<buffer::ControlInTransfer>},
-                    {MessageId::interruptOutTransfer, parseAndProcessMessage<buffer::InterruptOutTransfer>},
-                    {MessageId::interruptInTransfer, parseAndProcessMessage<buffer::InterruptInTransfer>},
-            };
 
-            auto response = functions.at(messageId)(message);
-            out << response << std::flush;
+            const std::string& response = cmd(messageId, message);
+            out << createResponse(response) << std::flush;
 
         }
-
-        libusb_exit(ctx);
     }
-}
 
-int main(){
-    libhidx::run();
-    return 0;
-}
+    std::string cmd(MessageId messageId, const std::string& request) {
+        const std::map<MessageId, std::string (*)(const std::string& msg)> functions = {
+            {MessageId::init, parseAndProcessMessage<buffer::Init>},
+            {MessageId::getDeviceList, parseAndProcessMessage<buffer::GetDeviceList>},
+            {MessageId::freeDeviceList, parseAndProcessMessage<buffer::FreeDeviceList>},
+            {MessageId::getDeviceDescriptor, parseAndProcessMessage<buffer::GetDeviceDescriptor>},
+            {MessageId::getActiveConfigDescriptor, parseAndProcessMessage<buffer::GetActiveConfigDescriptor>},
+            {MessageId::open, parseAndProcessMessage<buffer::Open>},
+            {MessageId::close, parseAndProcessMessage<buffer::Close>},
+            {MessageId::kernelDriverActive, parseAndProcessMessage<buffer::KernelDriverActive>},
+            {MessageId::detachKernelDriver, parseAndProcessMessage<buffer::DetachKernelDriver>},
+            {MessageId::attachKernelDriver, parseAndProcessMessage<buffer::AttachKernelDriver>},
+            {MessageId::claimInterface, parseAndProcessMessage<buffer::ClaimInterface>},
+            {MessageId::releaseInterface, parseAndProcessMessage<buffer::ReleaseInterface>},
+            {MessageId::getStringDescriptorAscii, parseAndProcessMessage<buffer::GetStringDescriptorAscii>},
+            {MessageId::controlOutTransfer, parseAndProcessMessage<buffer::ControlOutTransfer>},
+            {MessageId::controlInTransfer, parseAndProcessMessage<buffer::ControlInTransfer>},
+            {MessageId::interruptOutTransfer, parseAndProcessMessage<buffer::InterruptOutTransfer>},
+            {MessageId::interruptInTransfer, parseAndProcessMessage<buffer::InterruptInTransfer>},
+        };
+
+        return functions.at(messageId)(request);
+    }
+
+    std::string createResponse(const std::string& response){
+
+        std::string messageLength = std::to_string(response.size());
+        messageLength.insert(0, 4 - messageLength.size(), '0');
+
+        std::string buffer;
+        buffer += messageLength;
+        buffer += response;
+        buffer += '\n';
+
+        return buffer;
+    }
+}}

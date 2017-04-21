@@ -2,11 +2,9 @@
 
 #include <libhidx/Device.hh>
 
-#include <buffer.pb.h>
-#include <buffer_helper.hh>
-
 #include "subprocess.hh"
 
+#include <climits>
 #include <fstream>
 
 
@@ -19,12 +17,10 @@ namespace libhidx {
         return std::string( result, (count > 0) ? count : 0 );
     }
 
-
-
     LibHidx::LibHidx() {
 
         m_process = std::make_unique<subprocess::Popen>(
-                "pkexec " + getexepath() + "/../libhidx/libhidx_helper/libhidx_helper",
+                "pkexec " + getexepath() + "/../libhidx/libhidx_server_daemon/libhidx_server_daemon",
                 subprocess::input{subprocess::PIPE},
                 subprocess::output{subprocess::PIPE}
         );
@@ -42,6 +38,8 @@ namespace libhidx {
         if(response.retvalue() != 0){
             throw LibHidxError{"Cannot initialize libhidx."};
         }
+
+        m_ctx = response.ctx();
     }
 
     LibHidx::~LibHidx() {
@@ -54,7 +52,10 @@ namespace libhidx {
     void LibHidx::reloadDevices() {
         freeDevices();
 
-        auto response = sendMessage<buffer::GetDeviceList>(MessageId::getDeviceList, {});
+        buffer::GetDeviceList::Request getDeviceListRequest;
+        getDeviceListRequest.set_ctx(m_ctx);
+
+        auto response = sendMessage<buffer::GetDeviceList>(MessageId::getDeviceList, getDeviceListRequest);
 
         for(const auto& deviceHandle: response.devicelist()){
             m_devices.emplace_back(std::make_unique<Device>(deviceHandle, *this));

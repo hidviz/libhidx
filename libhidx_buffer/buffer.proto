@@ -6,11 +6,13 @@ message Init {
 
     message Response {
         required int32 retValue = 1;
+        required uint64 ctx = 2;
     }
 }
 
 message GetDeviceList {
     message Request {
+        required uint64 ctx = 1;
     }
 
     message Response {

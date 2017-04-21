@@ -4,8 +4,6 @@
 #include "DeviceStrings.hh"
 #include "Interface.hh"
 
-#include <libusb-1.0/libusb.h>
-
 #include <vector>
 #include <memory>
 

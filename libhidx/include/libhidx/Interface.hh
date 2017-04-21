@@ -5,8 +5,6 @@
 
 #include <libhidx/hid/Item.hh>
 
-#include <libusb-1.0/libusb.h>
-
 #include <atomic>
 #include <thread>
 #include <functional>

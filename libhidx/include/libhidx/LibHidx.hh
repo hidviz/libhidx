@@ -2,13 +2,14 @@
 #define LIBHIDX_HIDLIB_HH
 
 #include <buffer_helper.hh>
-
-#include <libusb-1.0/libusb.h>
+#include <libhidx/server/Server.hh>
 
 #include <vector>
 #include <memory>
 #include <mutex>
 #include <functional>
+
+
 
 namespace subprocess {
     class Popen;
@@ -42,6 +43,7 @@ namespace libhidx {
         void freeDevices();
         const auto& getDevices(){return m_devices;}
 
+#ifndef _WIN32 //Linux
         template<typename Msg>
         typename Msg::Response sendMessage(MessageId messageId, const typename Msg::Request& request){
             std::lock_guard<std::mutex> lock{m_commMutex};
@@ -69,6 +71,23 @@ namespace libhidx {
 
             return response;
         }
+#else // Windows
+
+        template<typename Msg>
+        typename Msg::Response sendMessage(MessageId messageId, const typename Msg::Request& request){
+            std::lock_guard<std::mutex> lock{m_commMutex};
+
+            auto buffer = request.SerializeAsString();
+
+            auto responseStr = server::cmd(messageId, buffer);
+
+            typename Msg::Response response;
+            response.ParseFromString(responseStr);
+
+            return response;
+        }
+#endif
+
 
     private:
         std::vector<std::unique_ptr<Device>> m_devices;
@@ -77,9 +96,9 @@ namespace libhidx {
         FILE* m_output;
         std::mutex m_commMutex;
         uint64_t m_listHandle = 0;
+        uint64_t m_ctx = 0;
     };
 
 }
-
 
 #endif //LIBHIDX_HIDLIB_HH

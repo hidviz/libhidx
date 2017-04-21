@@ -11,12 +11,13 @@ namespace libhidx {
 
     Interface::Interface(const buffer::Interface& interface, Device& device) : m_interface{interface.altsetting(0)}, m_device{device}, readingRuns{false}, stopReadingRequest{false} {
         for(const auto& endpoint: m_interface.endpoint()){
+            // TODO: remove magic constants
             bool isInterrupt =
-                (endpoint.attributes() & LIBUSB_TRANSFER_TYPE_MASK) == LIBUSB_TRANSFER_TYPE_INTERRUPT;
+                (endpoint.attributes() & 0x03) == 3;
             bool isInput =
-                (endpoint.endpointaddress() & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN;
+                (endpoint.endpointaddress() & 0x80) == 0x80;
             bool isOutput =
-                (endpoint.endpointaddress() & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT;
+                (endpoint.endpointaddress() & 0x80) == 0x00;
 
             if(isInterrupt && isInput){
                 m_inputAddress = endpoint.endpointaddress();
@@ -50,6 +51,8 @@ namespace libhidx {
         constexpr uint16_t bufferLength = 1024;
 
         auto handle = getHandle();
+        constexpr auto LIBUSB_REQUEST_GET_DESCRIPTOR = 0x06;
+        constexpr auto LIBUSB_DT_REPORT = 0x22;
         auto data = handle->controlInTransfer(0x81, LIBUSB_REQUEST_GET_DESCRIPTOR, ((LIBUSB_DT_REPORT << 8) | 0),
                                             static_cast<uint16_t>(m_interface.interfacenumber()), bufferLength, 1000);
 
@@ -117,6 +120,8 @@ namespace libhidx {
                 static_cast<uint16_t>(m_inputMaxSize),
                 1000
             );
+
+            constexpr auto LIBUSB_ERROR_TIMEOUT = -7;
 
             if(response.retvalue() == 0) {
                 std::vector<unsigned char> data{std::begin(response.data()), std::end(response.data())};
@@ -218,7 +223,9 @@ namespace libhidx {
                     1000
             );
         } else {
-
+            constexpr auto LIBUSB_REQUEST_TYPE_CLASS = (0x01 << 5);
+            constexpr auto LIBUSB_RECIPIENT_INTERFACE = 0x01;
+            constexpr auto LIBUSB_ENDPOINT_OUT = 0x00;
             handle->controlOutTransfer(LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE | LIBUSB_ENDPOINT_OUT, 0x09,
                                     (2/*HID output*/ << 8) | /*report_number*/ 0,
                                     static_cast<uint16_t>(m_interface.interfacenumber()), data.data(), data.size(), 500);

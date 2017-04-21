@@ -1,13 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 project(libhidx VERSION 0.0.1 LANGUAGES C CXX)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../libhidx_helper/cmake_modules/")
-
-find_package(libusb-1.0 REQUIRED)
-add_library(libusb-1.0 SHARED IMPORTED)
-set_property(TARGET libusb-1.0 PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${LIBUSB_1_INCLUDE_DIRS})
-set_property(TARGET libusb-1.0 PROPERTY IMPORTED_LOCATION ${LIBUSB_1_LIBRARY})
-
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
@@ -31,9 +24,9 @@ target_include_directories(hidx PUBLIC
         PRIVATE src)
 
 target_link_libraries(hidx
-        libusb-1.0
         Threads::Threads
         hidx_buffer
+        hidx_server
         )
 
 target_compile_features(hidx PUBLIC
