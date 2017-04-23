@@ -31,7 +31,7 @@ namespace hid {
         int64_t m_logicalValue = 0;
         double m_physicalValue = 0;
 
-        double logicalToPhysical(long);
+        double logicalToPhysical(int64_t);
         //TODO uint32_t physicalToLogical(double);
         int64_t convertLogicalValue(uint32_t value, unsigned int size);
     };
