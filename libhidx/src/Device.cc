@@ -33,8 +33,12 @@ namespace libhidx {
 
     const DeviceStrings& Device::getStrings() {
         if(!m_strings) {
-            auto deviceHandle = m_interfaces.front()->getHandle();
-            m_strings = std::make_unique<DeviceStrings>(deviceHandle->readStrings());
+            try {
+              auto deviceHandle = m_interfaces.front()->getHandle();
+              m_strings = std::make_unique<DeviceStrings>(deviceHandle->readStrings());
+            } catch(ConnectionException &ex){
+              m_strings = std::make_unique<DeviceStrings>();
+            }
         }
 
         return *m_strings;
