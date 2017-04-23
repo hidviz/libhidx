@@ -4,7 +4,7 @@ project(libhidx_server VERSION 0.0.1 LANGUAGES C CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/")
 
 find_package(libusb-1.0 REQUIRED)
-add_library(libusb-1.0 SHARED IMPORTED)
+add_library(libusb-1.0 UNKNOWN IMPORTED)
 set_property(TARGET libusb-1.0 PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${LIBUSB_1_INCLUDE_DIRS})
 set_property(TARGET libusb-1.0 PROPERTY IMPORTED_LOCATION ${LIBUSB_1_LIBRARY})
 
