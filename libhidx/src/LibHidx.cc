@@ -2,7 +2,9 @@
 
 #include <libhidx/Device.hh>
 
+#ifndef _WIN32
 #include "subprocess.hh"
+#endif
 
 #include <climits>
 #include <fstream>
@@ -10,15 +12,18 @@
 
 namespace libhidx {
 
+#ifndef _WIN32
     std::string getexepath()
     {
         char result[ PATH_MAX ];
         ssize_t count = readlink( "/proc/self/cwd", result, PATH_MAX );
         return std::string( result, (count > 0) ? count : 0 );
     }
+#endif
 
     LibHidx::LibHidx() {
 
+#ifndef _WIN32
         m_process = std::make_unique<subprocess::Popen>(
                 "pkexec " + getexepath() + "/../libhidx/libhidx_server_daemon/libhidx_server_daemon",
                 subprocess::input{subprocess::PIPE},
@@ -27,7 +32,7 @@ namespace libhidx {
         // this is weird, but it works
         m_input = m_process->output();
         m_output = m_process->input();
-
+#endif
 //        m_input = fopen("/tmp/fromhelper", "r");
 //        m_output = fopen("/tmp/tohelper", "w");
 
@@ -44,8 +49,9 @@ namespace libhidx {
 
     LibHidx::~LibHidx() {
         freeDevices();
-
+#ifndef _WIN32
         m_process->kill();
+#endif
         // TODO call exit
     }
 

@@ -91,7 +91,9 @@ namespace libhidx {
 
     private:
         std::vector<std::unique_ptr<Device>> m_devices;
+#ifndef _WIN32
         std::unique_ptr<subprocess::Popen> m_process;
+#endif
         FILE* m_input;
         FILE* m_output;
         std::mutex m_commMutex;
