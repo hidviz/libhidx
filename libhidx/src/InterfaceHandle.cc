@@ -18,7 +18,7 @@ namespace libhidx {
         }
 
         m_handle = resOpen.handle();
-
+#ifndef _WIN32
         buffer::KernelDriverActive::Request msgKernelDriverActive;
         msgKernelDriverActive.set_handle(m_handle);
         msgKernelDriverActive.set_interfacenumber(m_ifaceNumber);
@@ -33,6 +33,7 @@ namespace libhidx {
                 throw ConnectionException{"Detaching the kernel driver from device failed: " + std::to_string(resDetachKernelDriver.retvalue())};
             }
         }
+#endif
 
         buffer::ClaimInterface::Request msgClaimInterface;
         msgClaimInterface.set_handle(m_handle);
@@ -54,12 +55,12 @@ namespace libhidx {
         if(resReleaseInterface.retvalue()){
             std::cerr << "Releasing the interface failed: " << std::to_string(resReleaseInterface.retvalue()) << std::endl;
         }
-
+#ifndef _WIN32
         buffer::AttachKernelDriver::Request msgAttachKernelDriver;
         msgAttachKernelDriver.set_handle(m_handle);
         msgAttachKernelDriver.set_interfacenumber(m_ifaceNumber);
         m_lib.sendMessage<buffer::AttachKernelDriver>(MessageId::attachKernelDriver, msgAttachKernelDriver);
-
+#endif
         buffer::Close::Request msgClose;
         msgClose.set_handle(m_handle);
         m_lib.sendMessage<buffer::Close>(MessageId::close, msgClose);
