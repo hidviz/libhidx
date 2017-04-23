@@ -42,7 +42,8 @@ namespace hid {
         enum Flag {
             CONSTANT = 0x01,
             VARIABLE = 0x02,
-            RELATIVE = 0x04,
+            // do not use word RELATIVE, as it's defined as macro in msys2 env
+            FRELATIVE = 0x04,
             WRAP = 0x08,
             NONLINEAR = 0x10,
             NO_PREFERRED = 0x20,
@@ -51,7 +52,7 @@ namespace hid {
         };
         bool isConstant() const {return (m_flags & Flag::CONSTANT) != 0;}
         bool isVariable() const {return (m_flags & Flag::VARIABLE) != 0;}
-        bool isRelative() const {return (m_flags & Flag::RELATIVE) != 0;}
+        bool isRelative() const {return (m_flags & Flag::FRELATIVE) != 0;}
         bool isWrap() const {return (m_flags & Flag::WRAP) != 0;}
         bool isNonlinear() const {return (m_flags & Flag::NONLINEAR) != 0;}
         bool isNoPreferred() const {return (m_flags & Flag::NO_PREFERRED) != 0;}
