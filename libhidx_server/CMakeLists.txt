@@ -19,7 +19,7 @@ target_include_directories(hidx_server PUBLIC
 
 target_link_libraries(hidx_server
         libusb-1.0
-        hidx_buffer
+        hidx_shared
         )
 
 target_compile_features(hidx_server PUBLIC

@@ -1,26 +1,18 @@
 #ifndef LIBHIDX_HIDLIB_HH
 #define LIBHIDX_HIDLIB_HH
 
-#include <buffer_helper.hh>
-#include <libhidx/server/Server.hh>
+#include <libhidx/shared/Utils.hh>
 
 #include <vector>
 #include <memory>
 #include <mutex>
 #include <functional>
 
-
-
-namespace subprocess {
-    class Popen;
-}
-
 namespace google {
 namespace protobuf {
     class Message;
 }
 }
-
 
 namespace libhidx {
 
@@ -31,6 +23,7 @@ namespace libhidx {
     };
 
     class Device;
+    class Connector;
 
     class LibHidx {
     public:
@@ -38,67 +31,48 @@ namespace libhidx {
         LibHidx(const LibHidx&) = delete;
         ~LibHidx();
 
+        void connectLocal();
+#ifdef __linux__
+        void connectUnixSocket();
+#endif
+
+        bool doConnect();
+
+        void init();
+
         void reloadDevices();
         void loadDevices();
         void freeDevices();
         const auto& getDevices(){return m_devices;}
 
-#ifndef _WIN32 //Linux
         template<typename Msg>
         typename Msg::Response sendMessage(MessageId messageId, const typename Msg::Request& request){
             std::lock_guard<std::mutex> lock{m_commMutex};
 
-            auto buffer = bufferCreate(messageId, request);
+            auto messageOut = utils::packMessage(messageId, request.SerializeAsString());
 
-            auto messageSize = buffer.size();
+            auto messageIn = sendMessage(messageOut);
 
-            auto size = std::fwrite(buffer.data(), sizeof(char), messageSize, m_output);
-            std::fflush(m_output);
+            auto payloadIn = utils::unpackMessage(messageIn);
 
-            if(size != messageSize){
-                throw IOException{"Cannot send message."};
-            }
-
-            constexpr size_t LENGTH_LENGTH = 4;
-            auto lengthStr = recvN(m_input, LENGTH_LENGTH);
-            auto length = std::stoul(lengthStr);
-
-            auto responseStr = recvN(m_input, length);
             typename Msg::Response response;
-            response.ParseFromString(responseStr);
 
-            recvN(m_input, 1);
+            response.ParseFromString(payloadIn.second);
 
             return response;
         }
-#else // Windows
-
-        template<typename Msg>
-        typename Msg::Response sendMessage(MessageId messageId, const typename Msg::Request& request){
-            std::lock_guard<std::mutex> lock{m_commMutex};
-
-            auto buffer = request.SerializeAsString();
-
-            auto responseStr = server::cmd(messageId, buffer);
-
-            typename Msg::Response response;
-            response.ParseFromString(responseStr);
-
-            return response;
-        }
-#endif
 
 
     private:
+        std::string sendMessage(const std::string& message);
+
+        std::unique_ptr<Connector> m_connector;
+
         std::vector<std::unique_ptr<Device>> m_devices;
-#ifndef _WIN32
-        std::unique_ptr<subprocess::Popen> m_process;
-#endif
-        FILE* m_input;
-        FILE* m_output;
         std::mutex m_commMutex;
         uint64_t m_listHandle = 0;
         uint64_t m_ctx = 0;
+        bool m_initialized = false;
     };
 
 }

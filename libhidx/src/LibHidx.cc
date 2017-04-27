@@ -1,41 +1,42 @@
 #include <libhidx/LibHidx.hh>
 
+#include <libhidx/shared/Buffer.hh>
 #include <libhidx/Device.hh>
+#include <Connector.hh>
 
-#ifndef _WIN32
-#include "subprocess.hh"
-#endif
+#include <array>
 
-#include <climits>
-#include <fstream>
 
 
 namespace libhidx {
 
 #ifndef _WIN32
-    std::string getexepath()
-    {
-        char result[ PATH_MAX ];
-        ssize_t count = readlink( "/proc/self/cwd", result, PATH_MAX );
-        return std::string( result, (count > 0) ? count : 0 );
+
+#endif
+
+    LibHidx::LibHidx() {}
+
+    void LibHidx::connectLocal(){
+        m_connector = std::make_unique<LocalConnector>();
+    }
+
+#ifdef __linux__
+    void LibHidx::connectUnixSocket(){
+        m_connector = std::make_unique<UnixSocketConnector>();
     }
 #endif
 
-    LibHidx::LibHidx() {
+    bool LibHidx::doConnect() {
+        try {
+            m_connector->connect();
+        } catch(asio::system_error&){
+            return false;
+        }
 
-#ifndef _WIN32
-        m_process = std::make_unique<subprocess::Popen>(
-                "pkexec " + getexepath() + "/../libhidx/libhidx_server_daemon/libhidx_server_daemon",
-                subprocess::input{subprocess::PIPE},
-                subprocess::output{subprocess::PIPE}
-        );
-        // this is weird, but it works
-        m_input = m_process->output();
-        m_output = m_process->input();
-#endif
-//        m_input = fopen("/tmp/fromhelper", "r");
-//        m_output = fopen("/tmp/tohelper", "w");
+        return true;
+    }
 
+    void LibHidx::init(){
         buffer::Init::Request initReq;
 
         auto response = sendMessage<buffer::Init>(MessageId::init, initReq);
@@ -45,14 +46,17 @@ namespace libhidx {
         }
 
         m_ctx = response.ctx();
+        m_initialized = true;
     }
 
     LibHidx::~LibHidx() {
         freeDevices();
-#ifndef _WIN32
-        m_process->kill();
-#endif
-        // TODO call exit
+        if(!m_initialized){
+            return;
+        }
+        buffer::Exit::Request exitReq;
+        exitReq.set_ctx(m_ctx);
+        sendMessage<buffer::Exit>(MessageId::exit, exitReq);
     }
 
     void LibHidx::reloadDevices() {
@@ -85,6 +89,10 @@ namespace libhidx {
             sendMessage<buffer::FreeDeviceList>(MessageId::freeDeviceList, freeDeviceListReq);
             m_listHandle = 0;
         }
+    }
+
+    std::string LibHidx::sendMessage(const std::string& message) {
+        return m_connector->sendMessage(message);
     }
 
 }

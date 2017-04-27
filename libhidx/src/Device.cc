@@ -1,18 +1,16 @@
 #include <libhidx/Device.hh>
 
 #include <libhidx/InterfaceHandle.hh>
-#include <libhidx/LibHidxFactory.hh>
-#include <buffer.pb.h>
+#include <libhidx/LibHidx.hh>
 
 namespace libhidx {
 
     Device::Device(uint64_t device, LibHidx& lib) : m_lib{lib} {
         m_device = device;
-        auto& libhidx = LibHidxFactory::get();
 
         buffer::GetDeviceDescriptor::Request msg;
         msg.set_device(m_device);
-        auto response = libhidx.sendMessage<buffer::GetDeviceDescriptor>(MessageId::getDeviceDescriptor, msg);
+        auto response = m_lib.sendMessage<buffer::GetDeviceDescriptor>(MessageId::getDeviceDescriptor, msg);
 
         if(response.retvalue() != 0){
             throw IOException{"Cannot retrieve device descriptor."};
@@ -22,7 +20,7 @@ namespace libhidx {
 
         buffer::GetActiveConfigDescriptor::Request msg2;
         msg2.set_device(m_device);
-        auto response2 = libhidx.sendMessage<buffer::GetActiveConfigDescriptor>(MessageId::getActiveConfigDescriptor, msg2);
+        auto response2 = m_lib.sendMessage<buffer::GetActiveConfigDescriptor>(MessageId::getActiveConfigDescriptor, msg2);
         if(response.retvalue() != 0){
             throw IOException{"Cannot retrieve config descriptor."};
         }

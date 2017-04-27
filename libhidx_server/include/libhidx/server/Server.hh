@@ -1,14 +1,14 @@
 #ifndef PROJECT_SERVER_HH_HH
 #define PROJECT_SERVER_HH_HH
 
+#include <libhidx/shared/Utils.hh>
+
 #include <string>
-#include <buffer_helper.hh>
 
 namespace libhidx {
 namespace server {
-    void run();
-    std::string cmd(MessageId messageId, const std::string& request);
-    std::string createResponse(const std::string& response);
+    void run(std::string argc, bool watchParent);
+    std::string cmd(const std::string& request);
 
 }
 }

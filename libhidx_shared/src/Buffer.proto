@@ -10,6 +10,15 @@ message Init {
     }
 }
 
+message Exit {
+    message Request {
+        required uint64 ctx = 1;
+    }
+
+    message Response {
+    }
+}
+
 message GetDeviceList {
     message Request {
         required uint64 ctx = 1;

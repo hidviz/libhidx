@@ -16,7 +16,7 @@ add_library(hidx
         src/Usages.cc include/libhidx/Usages.hh
         src/hid/Usage.cc include/libhidx/hid/Usage.hh
         src/subprocess.hh
-        )
+        src/Connector.cc src/Connector.hh)
 
 target_include_directories(hidx PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -25,7 +25,7 @@ target_include_directories(hidx PUBLIC
 
 target_link_libraries(hidx
         Threads::Threads
-        hidx_buffer
+        hidx_shared
         hidx_server
         )
 

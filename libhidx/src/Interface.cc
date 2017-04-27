@@ -1,6 +1,6 @@
 #include <libhidx/Interface.hh>
 
-#include <buffer.pb.h>
+#include <libhidx/shared/Buffer.hh>
 #include <libhidx/InterfaceHandle.hh>
 #include <libhidx/Parser.hh>
 

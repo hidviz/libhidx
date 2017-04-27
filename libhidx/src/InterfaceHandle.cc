@@ -1,5 +1,4 @@
 #include <libhidx/InterfaceHandle.hh>
-#include <buffer.pb.h>
 
 #include <iostream>
 #include <libhidx/LibHidx.hh>

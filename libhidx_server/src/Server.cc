@@ -1,55 +1,31 @@
 #include <libhidx/server/Server.hh>
 
+#include <libhidx/shared/Buffer.hh>
+
 #include <libusb-1.0/libusb.h>
+#include <asio.hpp>
+
 #include <iostream>
-#include <vector>
-#include <buffer_helper.hh>
-#include <tuple>
-#include <map>
-#include <buffer.pb.h>
-#include <memory>
 #include <fstream>
-#include <sys/types.h>
-#include <unistd.h>
+#include <chrono>
+
+using generic = asio::generic::stream_protocol;
+#ifdef __linux__
+using local = asio::local::stream_protocol;
+#endif
 
 namespace libhidx {
 namespace server {
-
-    std::string recvN(std::istream& stream, size_t n) {
-        std::vector<char> buffer;
-        buffer.resize(n);
-        stream.read(buffer.data(), n);
-        if (!stream) {
-            throw IOException{"Input stream was closed."};
-        }
-
-        return {std::begin(buffer), std::end(buffer)};
-    }
-
-    std::pair<MessageId, std::string> receiveMsg(std::istream& stream) {
-        constexpr size_t ID_LENGTH = 4;
-        auto idStr = recvN(stream, ID_LENGTH);
-        auto idNum = std::stol(idStr);
-
-        auto id = static_cast<MessageId>(idNum);
-
-        constexpr size_t LENGTH_LENGTH = 4;
-        auto lengthStr = recvN(stream, LENGTH_LENGTH);
-        auto length = std::stoul(lengthStr);
-
-        auto message = recvN(stream, length);
-
-        recvN(stream, 1);
-
-        return std::make_pair(id, message);
-
-    }
 
     void processMessage(const buffer::Init::Request&, buffer::Init::Response& response) {
         libusb_context* ctx = nullptr;
         auto status = libusb_init(&ctx);
         response.set_retvalue(status);
         response.set_ctx(reinterpret_cast<uint64_t>(ctx));
+    }
+
+    void processMessage(const buffer::Exit::Request& request, buffer::Exit::Response&) {
+        libusb_exit(reinterpret_cast<libusb_context*>(request.ctx()));
     }
 
     void processMessage(const buffer::GetDeviceList::Request& request, buffer::GetDeviceList::Response& response) {
@@ -319,33 +295,108 @@ namespace server {
         return response.SerializeAsString();
     }
 
-    void run() {
-        std::ostream& out = std::cout;
-        std::istream& in = std::cin;
-//        std::ofstream out{"/tmp/fromhelper"};
-//        std::ifstream in{"/tmp/tohelper"};
+#include <asio/yield.hpp>
+    struct Loop : asio::coroutine {
+        generic::socket& m_socket;
+        std::shared_ptr<asio::streambuf> m_buffer;
+        std::string m_messageOut;
+        size_t m_dataLength = 0;
+        explicit Loop(generic::socket& socket) : m_socket{socket}, m_buffer{new asio::streambuf} {}
 
-        while (true) {
+        void operator()(asio::error_code ec = asio::error_code(), std::size_t = 0) {
+            // TODO check length
+            if (ec) {
+                throw asio::system_error{ec};
+            }
+            std::string dataLengthStr;
+            std::string messageIn;
+            std::string messageLength;
 
-            MessageId messageId;
-            std::string message;
+            reenter(this) {
+                while (true) {
+                    yield asio::async_read(m_socket, m_buffer->prepare(8), *this);
+                    m_buffer->commit(8);
+                    //check length?
 
-            try {
-                std::tie(messageId, message) = receiveMsg(in);
-            } catch (std::runtime_error& ex) {
-                break;
+                    dataLengthStr = std::string{asio::buffers_begin(m_buffer->data()), asio::buffers_end(m_buffer->data())};
+                    m_buffer->consume(8);
+                    m_dataLength = std::stoul(dataLengthStr);
+
+                    yield asio::async_read(m_socket, m_buffer->prepare(m_dataLength), *this);
+                    m_buffer->commit(m_dataLength);
+
+                    messageIn = std::string{asio::buffers_begin(m_buffer->data()), asio::buffers_end(m_buffer->data())};
+                    m_buffer->consume(m_dataLength);
+
+                    m_messageOut = cmd(messageIn);
+
+                    messageLength = std::to_string(m_messageOut.length());
+
+                    messageLength.insert(0, 8 - messageLength.length(), '0');
+
+                    yield asio::async_write(m_socket, asio::buffer(messageLength), *this);
+                    yield asio::async_write(m_socket, asio::buffer(m_messageOut), *this);
+                }
+            } // end reenter
+        }
+    };
+#include <asio/unyield.hpp>
+
+    void run(std::string sockDir, bool watchParent) {
+#ifdef __linux__
+        using namespace std::chrono;
+
+        std::string sockPath = sockDir + "/" + SOCKET_FILENAME;
+
+        asio::io_service io_service;
+        local::endpoint ep(sockPath);
+        local::acceptor acceptor{io_service, ep};
+        local::socket localSocket{io_service};
+        chmod(sockPath.c_str(), 0777);
+        acceptor.accept(localSocket);
+        generic::socket socket = std::move(localSocket);
+
+        (Loop(socket))();
+
+
+        bool running = true;
+
+        asio::steady_timer timer{io_service};
+
+        std::function<void(const asio::error_code& ec)> timerHandler;
+
+        timerHandler = [&](const asio::error_code&) {
+            // TODO check error code
+            if (getppid() == 1) {
+                std::cerr << "exit" << std::endl;
+                running = false;
+                return;
             }
 
+            timer.expires_from_now(500ms);
+            timer.async_wait(timerHandler);
+        };
 
-            const std::string& response = cmd(messageId, message);
-            out << createResponse(response) << std::flush;
-
+        if(watchParent) {
+            timer.expires_from_now(500ms);
+            timer.async_wait(timerHandler);
         }
+
+        while(running){
+            io_service.poll();
+        }
+
+        socket.close();
+        acceptor.close();
+        unlink(sockPath.c_str());
+        rmdir(sockDir.c_str());
+#endif
     }
 
-    std::string cmd(MessageId messageId, const std::string& request) {
+    std::string cmd(const std::string& request) {
         const std::map<MessageId, std::string (*)(const std::string& msg)> functions = {
             {MessageId::init, parseAndProcessMessage<buffer::Init>},
+            {MessageId::exit, parseAndProcessMessage<buffer::Exit>},
             {MessageId::getDeviceList, parseAndProcessMessage<buffer::GetDeviceList>},
             {MessageId::freeDeviceList, parseAndProcessMessage<buffer::FreeDeviceList>},
             {MessageId::getDeviceDescriptor, parseAndProcessMessage<buffer::GetDeviceDescriptor>},
@@ -364,19 +415,15 @@ namespace server {
             {MessageId::interruptInTransfer, parseAndProcessMessage<buffer::InterruptInTransfer>},
         };
 
-        return functions.at(messageId)(request);
-    }
+        MessageId messageId;
+        std::string payloadIn;
 
-    std::string createResponse(const std::string& response){
+        std::tie(messageId, payloadIn) = utils::unpackMessage(request);
 
-        std::string messageLength = std::to_string(response.size());
-        messageLength.insert(0, 4 - messageLength.size(), '0');
+        auto payloadOut = functions.at(messageId)(payloadIn);
 
-        std::string buffer;
-        buffer += messageLength;
-        buffer += response;
-        buffer += '\n';
+        auto messageOut = utils::packMessage(messageId, payloadOut);
 
-        return buffer;
+        return messageOut;
     }
 }}

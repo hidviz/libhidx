@@ -3,6 +3,7 @@ project(libhidx_server VERSION 0.0.1 LANGUAGES C CXX)
 
 add_executable(libhidx_server_daemon
         src/main.cc
+        src/args.hh
         )
 
 target_link_libraries(libhidx_server_daemon
