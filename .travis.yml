@@ -19,6 +19,5 @@ addons:
 install:
   - "[ $CXX = g++ ] && export CXX=g++-6 && export CC=gcc-6 || true"
   - "[ $CXX = clang++ ] && export CXX=clang++-3.8 && export CC=clang-3.8 || true"
-  - ./getasio.sh
 script:
   - mkdir build && cd build && cmake .. && make
