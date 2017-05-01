@@ -383,7 +383,13 @@ namespace server {
         }
 
         while(running){
-            io_service.poll();
+            try {
+                io_service.poll();
+            } catch(asio::system_error& e){
+                // TODO: we need to catch exit message and end the process properly
+                // This works without major problems, but it's not a clean way.
+                break;
+            }
         }
 
         socket.close();
