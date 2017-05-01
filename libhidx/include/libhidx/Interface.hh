@@ -31,7 +31,8 @@ namespace libhidx {
         std::string getName() const;
         std::shared_ptr<InterfaceHandle> getHandle();
         const auto& getDesc() const {return m_interface;}
-        hid::Item& getHidReportDesc();
+        hid::Item& getParsedHidReportDesc();
+        const std::string& getRawHidReportDesc();
         void setReadingListener(std::function<void()>);
         void sendData();
 
@@ -56,10 +57,13 @@ namespace libhidx {
 
         std::function<void()> m_listener;
 
-        std::unique_ptr<hid::Item> m_hidReportDesc;
+        bool m_hidParsed = false;
+        std::unique_ptr<hid::Item> m_parsedHidReportDesc;
+        std::string m_rawHidReportDesc;
 
         void updateData(std::vector<unsigned char>&& data);
         void sendOutputReport(const std::vector<unsigned char>& data);
+        void parseHidReportDesc();
     };
 
 }

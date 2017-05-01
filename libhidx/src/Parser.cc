@@ -2,6 +2,7 @@
 
 #include <libhidx/hid/Collection.hh>
 #include <libhidx/hid/Control.hh>
+#include <libhidx/Usages.hh>
 
 namespace libhidx {
     static uint16_t get_unaligned_le16(const void* p) {
@@ -35,7 +36,7 @@ namespace libhidx {
         : m_start{start}, m_size{size} {}
 
 
-    hid::Item* Parser::parse() {
+    void Parser::parse() {
         auto start = m_start;
         const uint8_t* end;
 
@@ -64,7 +65,7 @@ namespace libhidx {
                 if (m_local.delimiterDepth > 0) {
                     throw ParserError{"Delimiters are not balanced."};
                 }
-                auto& topItem = m_collectionStack.front();
+                auto topItem = m_collectionStack.front();
                 bool numbered = false;
                 topItem->forEach([&numbered](auto item){
                     auto control = dynamic_cast<hid::Control*>(item);
@@ -77,7 +78,8 @@ namespace libhidx {
 
                 topItem->m_numbered = numbered;
 
-                return topItem;
+                m_parsed = topItem;
+                return;
             }
         }
         throw ParserError{"Unexpected parser error."};
@@ -190,6 +192,8 @@ namespace libhidx {
             collection->m_usage = 0;
         }
 
+        m_raw += m_currentIndent + "Collection (" + collection->getTypeStr() + ")\n";
+        m_currentIndent += INDENT;
     }
 
     void Parser::closeCollection() {
@@ -197,6 +201,8 @@ namespace libhidx {
             throw ParserError{"Collection stack underrun."};
         }
         m_collectionStack.pop_back();
+        m_currentIndent.erase(0, INDENT.length());
+        m_raw += m_currentIndent + "End Collection\n";
     }
 
     void Parser::addField(hid::Control::Type reportType) {
@@ -249,6 +255,8 @@ namespace libhidx {
         field->m_unitExponent = m_global.unitExponent;
         field->m_unit = m_global.unit;
         field->m_reportId = m_global.reportId;
+
+        m_raw += m_currentIndent + "Item\n";
     }
 
     void Parser::parseGlobalItem() {
@@ -257,6 +265,7 @@ namespace libhidx {
         switch (m_currentItem.tag) {
             case Item::TAG::GLOBAL::PUSH:
                 m_globalStack.emplace_back(m_global);
+                m_raw += m_currentIndent + "Push\n";
                 return;
 
             case Item::TAG::GLOBAL::POP:
@@ -265,32 +274,40 @@ namespace libhidx {
                 }
                 m_global = m_globalStack.back();
                 m_globalStack.pop_back();
+                m_raw += m_currentIndent + "Pop\n";
                 return;
 
             case Item::TAG::GLOBAL::USAGE_PAGE:
                 m_global.usagePage = udata;
+                m_raw += m_currentIndent + "Usage Page (" + getHidUsagePageText(udata) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::LOGICAL_MINIMUM:
                 m_global.logicalMinimum = sdata;
+                m_raw += m_currentIndent + "Logical minimum (" + std::to_string(sdata) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::LOGICAL_MAXIMUM:
-                if (m_global.logicalMinimum < 0)
+                if (m_global.logicalMinimum < 0) {
                     m_global.logicalMaximum = sdata;
-                else
+                } else {
                     m_global.logicalMaximum = udata;
+                }
+                m_raw += m_currentIndent + "Logical maximum (" + std::to_string(m_global.logicalMaximum) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::PHYSICAL_MINIMUM:
                 m_global.physicalMinimum = sdata;
+                m_raw += m_currentIndent + "Physical minimum (" + std::to_string(sdata) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::PHYSICAL_MAXIMUM:
-                if (m_global.physicalMinimum < 0)
+                if (m_global.physicalMinimum < 0) {
                     m_global.physicalMaximum = sdata;
-                else
+                } else {
                     m_global.physicalMaximum = udata;
+                }
+                m_raw += m_currentIndent + "Physical maximum (" + std::to_string(m_global.physicalMaximum) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::UNIT_EXPONENT:
@@ -302,10 +319,12 @@ namespace libhidx {
                     m_global.unitExponent = hid_snto32(sdata, 4);
                 else
                     m_global.unitExponent = sdata;
+                m_raw += m_currentIndent + "Unit exponent (" + std::to_string(m_global.unitExponent) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::UNIT:
                 m_global.unit = udata;
+                m_raw += m_currentIndent + "Unit (" + std::to_string(udata) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::REPORT_SIZE:
@@ -313,10 +332,12 @@ namespace libhidx {
                 if (m_global.reportSize > 128) {
                     throw ParserError{"Invalid report size."};
                 }
+                m_raw += m_currentIndent + "Report size (" + std::to_string(udata) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::REPORT_COUNT:
                 m_global.reportCount = udata;
+                m_raw += m_currentIndent + "Report count (" + std::to_string(udata) + ")\n";
                 return;
 
             case Item::TAG::GLOBAL::REPORT_ID:
@@ -324,6 +345,7 @@ namespace libhidx {
                 if (m_global.reportId == 0) {
                     throw ParserError{"Invalid report id."};
                 }
+                m_raw += m_currentIndent + "Report ID (" + std::to_string(udata) + ")\n";
                 return;
 
             default:
@@ -355,6 +377,7 @@ namespace libhidx {
                     }
                     m_local.delimiterDepth--;
                 }
+                m_raw += m_currentIndent + "Delimiter\n";
                 return;
 
             case Item::TAG::LOCAL::USAGE:
@@ -368,6 +391,7 @@ namespace libhidx {
                     udata = (m_global.usagePage << 16) + udata;
 
                 m_local.usagesStack.emplace_back(udata);
+                m_raw += m_currentIndent + "Usage (" + getHidUsageText(udata) + ")\n";
                 return;
 
             case Item::TAG::LOCAL::USAGE_MINIMUM:
@@ -381,6 +405,7 @@ namespace libhidx {
                     udata = (m_global.usagePage << 16) + udata;
 
                 m_local.usageMinimum = udata;
+                m_raw += m_currentIndent + "Usage Minimum (" + getHidUsageText(udata) + ")\n";
                 return;
 
             case Item::TAG::LOCAL::USAGE_MAXIMUM:
@@ -396,7 +421,7 @@ namespace libhidx {
                 for (n = m_local.usageMinimum; n <= udata; n++){
                     m_local.usagesStack.emplace_back(n);
                 }
-
+                m_raw += m_currentIndent + "Usage Maximum (" + getHidUsageText(udata) + ")\n";
                 return;
 
             default:

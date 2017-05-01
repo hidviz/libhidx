@@ -24,7 +24,9 @@ namespace libhidx {
     class Parser {
     public:
         Parser(const uint8_t* start, std::size_t size);
-        hid::Item* parse();
+        void parse();
+        hid::Item* getParsed(){return m_parsed;}
+        const std::string& getRaw(){return m_raw;}
 
     private:
         struct Item {
@@ -149,6 +151,11 @@ namespace libhidx {
         void parseLocalItem();
         void parseReservedItem();
 
+        hid::Item* m_parsed;
+        std::string m_raw;
+
+        const std::string INDENT = "  ";
+        std::string m_currentIndent;
     };
 
 }

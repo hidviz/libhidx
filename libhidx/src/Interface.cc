@@ -5,7 +5,6 @@
 #include <libhidx/Parser.hh>
 
 #include <iostream>
-#include <cassert>
 
 namespace libhidx {
 
@@ -41,20 +40,30 @@ namespace libhidx {
         return m_interface.interfaceclass() == 3;
     }
 
-    hid::Item& Interface::getHidReportDesc() {
-        assert(isHid());
-
-        if(m_hidReportDesc){
-            return *m_hidReportDesc.get();
+    const std::string& Interface::getRawHidReportDesc() {
+        if(!m_hidParsed){
+            parseHidReportDesc();
         }
 
+        return m_rawHidReportDesc;
+    }
+
+    hid::Item& Interface::getParsedHidReportDesc() {
+        if(!m_hidParsed){
+            parseHidReportDesc();
+        }
+
+        return *m_parsedHidReportDesc.get();
+    }
+
+    void Interface::parseHidReportDesc() {
         constexpr uint16_t bufferLength = 1024;
 
         auto handle = getHandle();
         constexpr auto LIBUSB_REQUEST_GET_DESCRIPTOR = 0x06;
         constexpr auto LIBUSB_DT_REPORT = 0x22;
         auto data = handle->controlInTransfer(0x81, LIBUSB_REQUEST_GET_DESCRIPTOR, ((LIBUSB_DT_REPORT << 8) | 0),
-                                            static_cast<uint16_t>(m_interface.interfacenumber()), bufferLength, 1000);
+                                              static_cast<uint16_t>(m_interface.interfacenumber()), bufferLength, 1000);
 
         std::string buffer;
         int size;
@@ -66,10 +75,12 @@ namespace libhidx {
 
         auto parser = Parser{reinterpret_cast<const uint8_t*>(buffer.data()), static_cast<size_t>(size)};
 
-        auto rootItem = parser.parse();
-        m_hidReportDesc.reset(rootItem);
+        parser.parse();
+        m_parsedHidReportDesc.reset(parser.getParsed());
 
-        return *m_hidReportDesc.get();
+        m_rawHidReportDesc = parser.getRaw();
+
+        m_hidParsed = true;
     }
 
     std::string Interface::getName() const {
@@ -158,7 +169,7 @@ namespace libhidx {
     }
 
     void Interface::updateData(std::vector<unsigned char>&& dataRef) {
-        auto& reportDesc = getHidReportDesc();
+        auto& reportDesc = getParsedHidReportDesc();
 
         auto data = std::move(dataRef);
         unsigned reportId = 0;
@@ -179,7 +190,7 @@ namespace libhidx {
 
     void Interface::sendData() {
         std::vector<unsigned char> data;
-        m_hidReportDesc->forEach([&data](auto item){
+        m_parsedHidReportDesc->forEach([&data](auto item){
             auto control = dynamic_cast<hid::Control*>(item);
             if(!control){
                 return;
