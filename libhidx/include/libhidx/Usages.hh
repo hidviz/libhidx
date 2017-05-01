@@ -3,6 +3,8 @@
 
 #include <string>
 
+std::string getHidUsagePageText(uint32_t usagePageRaw);
+
 /**
  * Returns a string containing a verbal description of the specified USB HID usage.
  *

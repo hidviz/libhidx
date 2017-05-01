@@ -16,6 +16,86 @@ static std::string getVendorDefined(uint16_t usagePage, uint16_t usage){
     return getString("Vendor-defined", usagePage, usage);
 }
 
+std::string getHidUsagePageText(uint32_t usagePageRaw){
+    switch(usagePageRaw){
+        case 0x00:
+            return "Undefined";
+        case 0x01:
+            return "Generic Desktop";
+        case 0x02:
+            return "Simulation Control";
+        case 0x03:
+            return "VR Controls";
+        case 0x04:
+            return "Sport Controls";
+        case 0x05:
+            return "Game Controls";
+        case 0x06:
+            return "Generic Device Controls";
+        case 0x07:
+            return "Keyboard/Keypad";
+        case 0x08:
+            return "LEDs";
+        case 0x09:
+            return "Button";
+        case 0x0a:
+            return "Ordinal";
+        case 0x0b:
+            return "Telephony";
+        case 0x0c:
+            return "Consumer";
+        case 0x0d:
+            return "Digitizer";
+        case 0x0f:
+            return "PID Page";
+        case 0x10:
+            return "Unicode";
+        case 0x14:
+            return "Alphanumeric Display";
+        case 0x40:
+            return "Medical Instruments";
+        case 0x80:
+        case 0x81:
+        case 0x82:
+        case 0x83:
+            return "Monitor pages";
+        case 0x84:
+        case 0x85:
+        case 0x86:
+        case 0x87:
+            return "Power pages";
+        case 0x8c:
+            return "Bar Code Scanner page";
+        case 0x8d:
+            return "Scale page";
+        case 0x8e:
+            return "Magnetic Stripe Reading (MSR) Devices";
+        case 0x8f:
+            return "Reserved Point of Sale pages";
+        case 0x90:
+            return "Camera Control Page";
+        case 0x91:
+            return "Arcade Page";
+        default:
+            if(
+                (usagePageRaw == 0x0e) ||
+                (usagePageRaw >= 0x11 && usagePageRaw <= 0x13) ||
+                (usagePageRaw >= 0x15 && usagePageRaw <= 0x3f) ||
+                (usagePageRaw >= 0x41 && usagePageRaw <= 0x7f) ||
+                (usagePageRaw >= 0x88 && usagePageRaw <= 0x8b) ||
+                (usagePageRaw >= 0x92 && usagePageRaw <= 0xfeff)
+                ){
+                return "Reserved";
+            }
+
+            if(usagePageRaw >= 0xff00){
+                return "Vendor-defined";
+            }
+
+    }
+    return "Error";
+}
+
 std::string getHidUsageText(uint32_t usageRaw) {
     const auto usagePage = static_cast<uint16_t>(usageRaw >> 16U);
     const auto usage = static_cast<uint16_t>(usageRaw & 0xffff);
