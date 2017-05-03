@@ -42,6 +42,7 @@ namespace libhidx {
         std::string m_socketDir;
         asio::io_service m_ioService;
         std::unique_ptr<asio::generic::stream_protocol::socket> m_socket;
+        std::string getServerPath();
     };
 #endif
 

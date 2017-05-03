@@ -45,13 +45,33 @@ namespace libhidx {
         mkdtemp(temp.data());
         m_socketDir = temp.data();
 
+        auto serverPath = getServerPath();
+
         m_process = std::make_unique<subprocess::Popen>(
-            "pkexec " + getExecutablePath() + "/../libhidx/libhidx_server_daemon/libhidx_server_daemon -p -u " + temp.data(),
+            "pkexec " + serverPath + " -p -u " + temp.data(),
             subprocess::input{subprocess::PIPE},
             subprocess::output{subprocess::PIPE}
         );
 
         m_ioService.run();
+    }
+
+    std::string UnixSocketConnector::getServerPath() {
+        const static std::vector<std::__cxx11::string> possiblePaths{
+            getExecutablePath() + "/../libhidx/libhidx_server_daemon",
+            "/usr/local/libexec",
+            "/usr/libexec"
+        };
+        const static std::string executableName{"libhidx_server_daemon"};
+
+        for(const auto& dir: possiblePaths){
+            auto path = dir + '/' + executableName;
+            if(access(path.c_str(), X_OK) != -1){
+                return path;
+            }
+        }
+
+        throw IOException{"Cannot find server binary!"};
     }
 
     UnixSocketConnector::~UnixSocketConnector() {
