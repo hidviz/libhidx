@@ -57,7 +57,7 @@ namespace libhidx {
     }
 
     std::string UnixSocketConnector::getServerPath() {
-        const static std::vector<std::__cxx11::string> possiblePaths{
+        const static std::vector<std::string> possiblePaths{
             getExecutablePath() + "/../libhidx/libhidx_server_daemon",
             "/usr/local/libexec",
             "/usr/libexec"

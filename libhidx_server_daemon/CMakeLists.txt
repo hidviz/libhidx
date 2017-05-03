@@ -15,17 +15,6 @@ target_compile_features(libhidx_server_daemon PUBLIC
         )
 target_compile_options(libhidx_server_daemon PRIVATE $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>: -Wall -Wextra>)
 
-## 'make install' to the correct location
-#install(TARGETS hidx EXPORT LibHidxConfig
-#        ARCHIVE  DESTINATION lib
-#        LIBRARY  DESTINATION lib
-#        RUNTIME  DESTINATION bin)  # This is for Windows
-#install(DIRECTORY include/ DESTINATION include)
-#
-## This makes the project importable from the install directory
-## Put config file in per-project dir (name MUST match), can also
-## just go into <prefix>/cmake.
-#install(EXPORT LibHidxConfig NAMESPACE LibHidx DESTINATION share/libhidx/cmake)
-#
-## This makes the project importable from the build directory
-#export(TARGETS hidx FILE LibHidxConfig.cmake)
+install(TARGETS libhidx_server_daemon
+        RUNTIME DESTINATION libexec
+        )
