@@ -33,8 +33,10 @@ target_compile_features(hidx PUBLIC
         )
 target_compile_options(hidx PRIVATE $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>: -Wall -Wextra>)
 
-include(GNUInstallDirs)
 
-install(TARGETS hidx
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/hidviz
-        )
+if(NOT WIN32)
+    include(GNUInstallDirs)
+    install(TARGETS hidx
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/hidviz
+            )
+endif()

@@ -15,6 +15,9 @@ target_compile_features(libhidx_server_daemon PUBLIC
         )
 target_compile_options(libhidx_server_daemon PRIVATE $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>: -Wall -Wextra>)
 
-install(TARGETS libhidx_server_daemon
-        RUNTIME DESTINATION libexec
-        )
+if(NOT WIN32)
+    include(GNUInstallDirs)
+    install(TARGETS libhidx_server_daemon
+            RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}
+            )
+endif()
