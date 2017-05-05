@@ -20,4 +20,5 @@ if(NOT WIN32)
     install(TARGETS libhidx_server_daemon
             RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}
             )
+    set_target_properties(libhidx_server_daemon PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/hidviz)
 endif()

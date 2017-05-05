@@ -39,4 +39,5 @@ if(NOT WIN32)
     install(TARGETS hidx
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/hidviz
             )
+    set_target_properties(hidx PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/hidviz)
 endif()
