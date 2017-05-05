@@ -12,7 +12,7 @@ find_package(Protobuf REQUIRED)
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS src/Buffer.proto)
 
-add_library(hidx_server
+add_library(hidx_server SHARED
         src/Server.cc include/libhidx/server/Server.hh
         src/Utils.cc include/libhidx/server/Utils.hh
         include/libhidx/server/Buffer.hh
