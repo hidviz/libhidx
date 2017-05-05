@@ -1,7 +1,7 @@
 #ifndef PROJECT_SERVER_HH_HH
 #define PROJECT_SERVER_HH_HH
 
-#include <libhidx/shared/Utils.hh>
+#include <libhidx/server/Utils.hh>
 
 #include <string>
 

@@ -4,6 +4,5 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_mo
 find_package(asio REQUIRED)
 
 add_subdirectory(libhidx)
-add_subdirectory(libhidx_shared)
 add_subdirectory(libhidx_server)
 add_subdirectory(libhidx_server_daemon)

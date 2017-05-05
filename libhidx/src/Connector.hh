@@ -1,7 +1,7 @@
 #ifndef PROJECT_CONNECTOR_HH
 #define PROJECT_CONNECTOR_HH
 
-#include <libhidx/shared/Utils.hh>
+#include <libhidx/server/Utils.hh>
 
 #include <asio.hpp>
 

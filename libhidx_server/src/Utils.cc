@@ -1,4 +1,4 @@
-#include <libhidx/shared/Utils.hh>
+#include <libhidx/server/Utils.hh>
 
 #include <google/protobuf/message.h>
 

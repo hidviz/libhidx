@@ -25,7 +25,6 @@ target_include_directories(hidx PUBLIC
 
 target_link_libraries(hidx
         Threads::Threads
-        hidx_shared
         hidx_server
         )
 

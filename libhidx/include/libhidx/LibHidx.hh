@@ -1,7 +1,7 @@
 #ifndef LIBHIDX_HIDLIB_HH
 #define LIBHIDX_HIDLIB_HH
 
-#include <libhidx/shared/Utils.hh>
+#include <libhidx/server/Utils.hh>
 
 #include <vector>
 #include <memory>

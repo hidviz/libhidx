@@ -5,7 +5,7 @@
 #include "Device.hh"
 #include "DeviceStrings.hh"
 
-#include <libhidx/shared/Buffer.hh>
+#include <libhidx/server/Buffer.hh>
 
 namespace libhidx {
 
