@@ -21,9 +21,6 @@
 #ifndef LIBHIDX_HIDLIBDEVICE_HH
 #define LIBHIDX_HIDLIBDEVICE_HH
 
-#include "DeviceStrings.hh"
-#include "Interface.hh"
-
 #include <vector>
 #include <memory>
 
@@ -34,6 +31,7 @@ namespace libhidx {
     }
     class Interface;
     class LibHidx;
+    class DeviceStrings;
 
     class Device {
     public:

@@ -21,13 +21,10 @@
 #ifndef LIBHIDX_INTERFACE_HH
 #define LIBHIDX_INTERFACE_HH
 
-#include "Device.hh"
-
-#include <libhidx/hid/Item.hh>
-
 #include <atomic>
 #include <thread>
 #include <functional>
+#include <vector>
 
 namespace libhidx {
 
@@ -35,6 +32,10 @@ namespace libhidx {
         class Interface;
         class InterfaceDescriptor;
     };
+
+    namespace hid {
+        class Item;
+    }
 
     class Device;
     class InterfaceHandle;

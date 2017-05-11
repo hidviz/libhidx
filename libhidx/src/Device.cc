@@ -20,8 +20,10 @@
 
 #include <libhidx/Device.hh>
 
+#include <libhidx/Interface.hh>
 #include <libhidx/InterfaceHandle.hh>
 #include <libhidx/LibHidx.hh>
+#include <libhidx/DeviceStrings.hh>
 
 namespace libhidx {
 
