@@ -40,8 +40,6 @@ namespace hid {
         void appendChild(Item* child);
         Item* child(int row);
         size_t childCount() const;
-        Item* parentItem();
-        size_t row() const;
         void forEach(const std::function<void(Item*)>& function);
         auto isNumbered(){return topItem()->m_numbered;}
         unsigned getLevel(){if(!m_parent){return 0;} return m_parent->getLevel() + 1;}
