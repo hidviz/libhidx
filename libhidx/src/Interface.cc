@@ -226,7 +226,7 @@ namespace libhidx {
 
             auto controlData = control->getData();
             auto controlOffset = control->getOffset();
-            auto controlSize = control->getSize() * control->getCount();
+            auto controlSize = control->getReportSize() * control->getReportCount();
 
             for(unsigned i = 0; i < controlSize; ++i){
                 auto offset = controlOffset + i;

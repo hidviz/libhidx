@@ -26,11 +26,18 @@
 #include <asio.hpp>
 
 namespace libhidx {
+    /**
+     * @todo Merge those exceptions!
+     */
     class IOException : public std::runtime_error {
     public:
         explicit IOException(const std::string& str) : std::runtime_error{str} {}
     };
 
+    /**
+     * Ids to identificate messages.
+     * @todo Remove those IDs.
+     */
     enum class MessageId : uint8_t {
         init, exit, getDeviceList, freeDeviceList,
         getDeviceDescriptor, getActiveConfigDescriptor,
@@ -42,13 +49,20 @@ namespace libhidx {
         interruptOutTransfer, interruptInTransfer
     };
 
+    /// Filename of socket
     constexpr const char* SOCKET_FILENAME = "sock";
 
 namespace utils {
-
+    /// Reads message from socket.
     std::string readMessage(asio::generic::stream_protocol::socket& socket);
+
+    /// Write message into socket.
     void writeMessage(asio::generic::stream_protocol::socket& socket, const std::string& message);
+
+    /// Packs message for sending.
     std::string packMessage(MessageId messageId, const std::string& payload);
+
+    /// Unpacks message upon receiving.
     std::pair<MessageId, std::string> unpackMessage(const std::string& message);
 }}
 

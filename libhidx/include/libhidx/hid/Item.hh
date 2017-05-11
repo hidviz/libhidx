@@ -29,27 +29,67 @@ namespace libhidx {
     class Parser;
 namespace hid {
 
+    /**
+     * Base class for representations of HID controls and collections.
+     * @todo It should be possible to delete this class and remove inheritance,
+     * because they don't share much behaviour.
+     */
     class Item {
         friend class libhidx::Parser;
     public:
+        /**
+         * Constructs Item instance.
+         * @param parent Parent item.
+         */
         explicit Item(Item* parent = nullptr) : m_parent{parent}{}
         Item(const Item&) = delete;
         Item& operator= (const Item&) = delete;
+
+        /// Destructs Item and its children.
         virtual ~Item() = default;
 
+        /// Adds new child.
         void appendChild(Item* child);
-        Item* child(int row);
+
+        /**
+         * Returns child at specific index.
+         * @param index Index from which the childbe returned
+         * @return Child at index
+         */
+        Item* child(int index);
+
+        /// Returns child could.
         size_t childCount() const;
+
+        /**
+         * Runs function for this Item and all its children recursively.
+         * @param function Functor to be run for all children
+         */
         void forEach(const std::function<void(Item*)>& function);
+
+        /// Returns if this Item is numbered (Report IDs are used).
         auto isNumbered(){return topItem()->m_numbered;}
+
+        /// Returns the depth of this Item (how many levels is it from top level collection).
         unsigned getLevel(){if(!m_parent){return 0;} return m_parent->getLevel() + 1;}
 
     protected:
+        /// Returns top level collection.
         Item* topItem();
 
     private:
+        /// Vector of all children controls
         std::vector<std::unique_ptr<Item>> m_children;
+
+        /// Parent item (collection)
         Item* m_parent = nullptr;
+
+        /**
+         * Holds information whether this Item is numbered (Report IDs are used in analyzed device).
+         * DO NOT use this value when figuring out whether this Item is in numbered device, use isNumbered
+         * instead, because this flag could be set only in top level collection.
+         * @todo Make this sane.
+         */
         bool m_numbered = false;
 
     };

@@ -39,7 +39,7 @@ namespace hid {
         if(m_control->getLogicalMinimum() >= 0 && m_control->getLogicalMaximum() >= 0){
             logicalValue = rawLogicalValue;
         } else {
-            auto size = m_control->getSize();
+            auto size = m_control->getReportSize();
             logicalValue = convertLogicalValue(rawLogicalValue, size);
         }
 

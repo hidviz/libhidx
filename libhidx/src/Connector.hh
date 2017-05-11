@@ -33,13 +33,33 @@ namespace subprocess {
 
 namespace libhidx {
 
+    /**
+     * Connector class for connection frontend with backend.
+     *
+     * This class contains only abstract interface.
+     */
     class Connector {
     public:
-        virtual ~Connector() = default;
+        /// Connects to backend.
         virtual bool connect() = 0;
+
+        /**
+         * Communicates with backend.
+         *
+         * By communicate it's meant send request and receive response.
+         * @param message Request
+         * @return Response
+         */
         virtual std::string sendMessage(const std::string& message) = 0;
     };
 
+    /**
+     * LocalConnector connects to backend directly via API.
+     *
+     * This means backend is running in the same process as frontend.
+     * If frontend doesn't have sufficient privileges to communicate
+     * with usb devices.
+     */
     class LocalConnector : public Connector {
     public:
         LocalConnector();
@@ -48,20 +68,47 @@ namespace libhidx {
     };
 
 #ifdef __linux__
+    /**
+     * UnixSocketConnector uses unix socket to commucicate with backend.
+     *
+     * This connector spawns a helper process, which then communicates
+     * with usb devices. The helper is started with polkit, therefore
+     * it has root privileges needed for communcation with usb devices
+     * on most linux systems.
+     */
     class UnixSocketConnector : public Connector {
     public:
         UnixSocketConnector();
-        ~UnixSocketConnector() override;
+        ~UnixSocketConnector();
 
         bool connect() override;
         std::string sendMessage(const std::string& message) override;
+
     private:
+        /// Pointer to helper process.
+        std::unique_ptr<subprocess::Popen> m_process;
+
+        /// Directory where the socket is located.
+        std::string m_socketDir;
+
+        /// Asio IO service.
+        asio::io_service m_ioService;
+
+        /// Socket used to communicate with helper process.
+        std::unique_ptr<asio::generic::stream_protocol::socket> m_socket;
+
+        /// Returns current working directory for frontend process.
         std::string getExecutablePath();
 
-        std::unique_ptr<subprocess::Popen> m_process;
-        std::string m_socketDir;
-        asio::io_service m_ioService;
-        std::unique_ptr<asio::generic::stream_protocol::socket> m_socket;
+        /**
+         * Returns the path to helper binary.
+         *
+         * This function searches for binary in several directories.
+         * Therefore it should work in development environment and also
+         * in production environment.
+         *
+         * @todo Return meaningful value if the binary wasn't found
+         */
         std::string getServerPath();
     };
 #endif

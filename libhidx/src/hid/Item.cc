@@ -29,8 +29,8 @@ namespace hid {
         m_children.push_back(std::unique_ptr<Item>(child));
     }
 
-    Item* Item::child(int row) {
-        return m_children[row].get();
+    Item* Item::child(int index) {
+        return m_children[index].get();
     }
 
     size_t Item::childCount() const {
