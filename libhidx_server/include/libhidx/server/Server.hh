@@ -25,7 +25,18 @@
 
 namespace libhidx {
 namespace server {
-    void run(std::string argc, bool watchParent);
+    /**
+     * Runs server to process requests given via unix domain socket.
+     * @param sockDir Directory where socket should be created.
+     * @param watchParent Specifies if server should close when its parent process dies.
+     */
+    void run(std::string sockDir, bool watchParent);
+
+    /**
+     * Processes one request and returns response.
+     * @param request Request to be processed.
+     * @return Response to given request
+     */
     std::string cmd(const std::string& request);
 
 }

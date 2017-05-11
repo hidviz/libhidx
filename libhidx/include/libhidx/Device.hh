@@ -33,28 +33,56 @@ namespace libhidx {
     class LibHidx;
     class DeviceStrings;
 
+    /// Representation of USB device.
     class Device {
     public:
-
+        /**
+         * Constructs new device.
+         * @param handle libusb handle
+         * @param lib Libhidx instance
+         */
         Device(uint64_t handle, LibHidx& lib);
         Device(const Device&) = delete;
 
+        /// Returns libusb device native handle.
         const auto& getPtr() const { return m_device; }
+
+        /// Returns device descriptor.
         auto getDesc() const { return m_descriptor.get(); }
+
+        /// Returns device strings.
         const DeviceStrings& getStrings();
+
+        /// Returns vector of interfaces.
         const auto& getInterfaces() const {return m_interfaces;}
+
+        /// Returns libhidx instance to which this device belongs.
         auto& getLib() {return m_lib;}
+
+        /// Returns device configuration descriptor.
         auto getConfigDesc() const {return m_config_descriptor.get();}
 
 
     private:
+        /// Libusb device handle
         uint64_t m_device = 0;
+
+        /// Device descriptor
         std::unique_ptr<const buffer::DeviceDescriptor> m_descriptor;
+
+        /// Config descriptor
         std::unique_ptr<const buffer::ConfigDescriptor> m_config_descriptor;
+
+        /// Device strings (vendor, product).
         std::unique_ptr<DeviceStrings> m_strings;
+
+        /// Vector of interfaces.
         std::vector<std::unique_ptr<Interface>> m_interfaces;
+
+        /// Reference of library to which this device belongs.
         LibHidx& m_lib;
 
+        /// Constructs all interfaces belonging to this device.
         void fillInterfaces();
 
     };

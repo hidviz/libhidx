@@ -25,6 +25,7 @@
 
 namespace libhidx {
 
+    /// Class holding device strings (manufacturer, product, serial number).
     class DeviceStrings {
     public:
         std::string manufacturer;

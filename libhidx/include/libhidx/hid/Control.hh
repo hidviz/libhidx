@@ -27,28 +27,47 @@
 
 namespace libhidx {
     class Parser;
+
 namespace hid {
+
+    /// Representation of HID control (input, output, feature)
     class Control : public Item {
         friend class libhidx::Parser;
-
     public:
-        explicit Control(Item* parent = nullptr) : Item{parent} {}
-        void setData(const std::vector<unsigned char>& rawData, unsigned reportId);
-        uint32_t getData() const;
-
-
+        /// Control types
         enum class Type {
+            /// Not defined
             UNDEFINED = -1,
+            /// Input
             INPUT = 0,
+            /// Output
             OUTPUT  = 1,
-            FEATURE = 2
+            /// Feature
+            FEATURE = 2,
         };
 
+        /**
+         * Contructs Control instance
+         * @param parent Parent collection
+         */
+        explicit Control(Item* parent = nullptr) : Item{parent} {}
+
+        /**
+         * Sets new data for this control.
+         * @param rawData Raw received data.
+         * @param reportId ID of received report
+         */
+        void setData(const std::vector<unsigned char>& rawData, unsigned reportId);
+
+        /// Returns data for this control.
+        uint32_t getData() const;
         auto getReportType() const {return m_reportType;}
+
+        /// Returns all usage instances.
         const auto& getUsages() const {return m_usages;}
+
+        /// Return offset in HID report.
         auto getOffset() const {return m_offset;};
-        auto getSize() const {return m_reportSize;}
-        auto getCount() const {return m_reportCount;}
         auto getLogicalMinimum() const {return m_logicalMinimum;}
         auto getLogicalMaximum() const {return m_logicalMaximum;}
         auto getPhysicalMinimum() const {return m_physicalMinimum;}
@@ -59,6 +78,7 @@ namespace hid {
         auto getReportSize() const {return m_reportSize;}
         auto getReportCount() const {return m_reportCount;}
 
+        /// Flags for control
         enum Flag {
             CONSTANT = 0x01,
             VARIABLE = 0x02,
@@ -78,10 +98,15 @@ namespace hid {
         bool isNoPreferred() const {return (m_flags & Flag::NO_PREFERRED) != 0;}
         bool isNullState() const {return (m_flags & Flag::NULL_STATE) != 0;}
         bool isVolatile() const {return (m_flags & Flag::VOLATILE) != 0;}
+
+        /// Returns true if this value is binary (has two states - 0 and 1)
         bool isBinary() const;
 
     private:
+        /// Control's offset in HID report
         std::size_t m_offset = 0;
+
+        /// Vector of all child usages
         std::vector<std::unique_ptr<Usage>> m_usages;
         uint32_t m_flags = 0;
         Type m_reportType = Type::UNDEFINED;
@@ -95,10 +120,28 @@ namespace hid {
         unsigned m_unit = 0;
         unsigned int m_reportId = 0;
 
+        /**
+         * Extracts data from HID report to this control
+         *
+         * Vector of booleans is used as abstraction for bitfield.s
+         * @param vector HID report
+         * @return This control's data
+         */
         std::vector<bool> extractData(const std::vector<unsigned char>& vector);
 
+        /**
+         * Extracts data for usage from control's data
+         * @param data Data for current control
+         * @param index Index of usage to be extracted
+         * @return Data for usage at specific index
+         */
         uint32_t extractVariableUsageData(const std::vector<bool>& data, unsigned index);
 
+        /**
+         * Finds usage by its ID in current Control
+         * @param id
+         * @return Found usage or nullptr if wasn't found
+         */
         Usage* findUsageById(uint32_t id);
     };
 }
