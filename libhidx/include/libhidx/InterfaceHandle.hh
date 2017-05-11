@@ -21,13 +21,15 @@
 #ifndef LIBHIDX_HIDLIBDEVICEHANDLE_HH
 #define LIBHIDX_HIDLIBDEVICEHANDLE_HH
 
-
-#include "Device.hh"
-#include "DeviceStrings.hh"
-
 #include <libhidx/server/Buffer.hh>
 
+#include <stdexcept>
+
 namespace libhidx {
+
+    class Interface;
+    class LibHidx;
+    class DeviceStrings;
 
     class ConnectionException : public std::runtime_error {
     public:

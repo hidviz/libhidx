@@ -22,11 +22,9 @@
 
 #include <libhidx/server/Buffer.hh>
 #include <libhidx/Device.hh>
+#include <libhidx/Interface.hh>
+#include <libhidx/DeviceStrings.hh>
 #include <Connector.hh>
-
-#include <array>
-
-
 
 namespace libhidx {
 

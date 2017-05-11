@@ -21,6 +21,7 @@
 #include <libhidx/server/Server.hh>
 
 #include <libhidx/server/Buffer.hh>
+#include <libhidx/server/Utils.hh>
 
 #include <libusb-1.0/libusb.h>
 #include <asio.hpp>

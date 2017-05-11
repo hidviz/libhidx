@@ -21,8 +21,6 @@
 #ifndef PROJECT_SERVER_HH_HH
 #define PROJECT_SERVER_HH_HH
 
-#include <libhidx/server/Utils.hh>
-
 #include <string>
 
 namespace libhidx {

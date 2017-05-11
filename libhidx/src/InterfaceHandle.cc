@@ -19,9 +19,12 @@
 //
 
 #include <libhidx/InterfaceHandle.hh>
+#include <libhidx/Interface.hh>
+#include <libhidx/LibHidx.hh>
+#include <libhidx/Device.hh>
+#include <libhidx/DeviceStrings.hh>
 
 #include <iostream>
-#include <libhidx/LibHidx.hh>
 
 namespace libhidx {
 

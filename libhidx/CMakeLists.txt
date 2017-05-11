@@ -16,7 +16,9 @@ add_library(hidx SHARED
         src/Usages.cc include/libhidx/Usages.hh
         src/hid/Usage.cc include/libhidx/hid/Usage.hh
         src/subprocess.hh
-        src/Connector.cc src/Connector.hh)
+        src/Connector.cc src/Connector.hh
+        include/libhidx/DeviceStrings.hh
+        )
 
 target_include_directories(hidx PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

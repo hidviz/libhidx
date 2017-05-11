@@ -23,6 +23,8 @@
 #include <libhidx/server/Buffer.hh>
 #include <libhidx/InterfaceHandle.hh>
 #include <libhidx/Parser.hh>
+#include <libhidx/Device.hh>
+#include <libhidx/DeviceStrings.hh>
 
 #include <iostream>
 
