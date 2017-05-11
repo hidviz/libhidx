@@ -99,7 +99,7 @@ namespace hid {
 
         uint32_t extractVariableUsageData(const std::vector<bool>& data, unsigned index);
 
-        Usage* findUsageByValue(uint32_t value);
+        Usage* findUsageById(uint32_t id);
     };
 }
 }
