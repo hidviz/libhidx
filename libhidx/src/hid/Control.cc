@@ -50,7 +50,7 @@ namespace hid {
             for(unsigned i = 0; i < m_reportCount; ++i){
                 uint32_t usageIndex = extractVariableUsageData(data, i);
 
-                auto usage = findUsageByValue(usageIndex);
+                auto usage = findUsageById(usageIndex);
                 if(!usage){
                     continue;
                 }
@@ -89,9 +89,9 @@ namespace hid {
         return ret;
     }
 
-    Usage* Control::findUsageByValue(uint32_t value) {
-        auto it = std::find_if(begin(m_usages), end(m_usages), [&value](const auto &usage){
-            return (usage->getId() & 0xff) == value;
+    Usage* Control::findUsageById(uint32_t id) {
+        auto it = std::find_if(begin(m_usages), end(m_usages), [&id](const auto &usage){
+            return (usage->getId() & 0xff) == id;
         });
 
         if(it == end(m_usages)){
