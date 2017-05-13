@@ -40,6 +40,7 @@ if(NOT WIN32)
     include(GNUInstallDirs)
     install(TARGETS hidx_server
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/hidviz
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/hidviz
             )
     set_target_properties(hidx_server PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/hidviz)
 endif()
