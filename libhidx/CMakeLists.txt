@@ -4,7 +4,7 @@ project(libhidx VERSION 0.0.1 LANGUAGES C CXX)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_library(hidx SHARED
+add_library(hidx
         src/LibHidx.cc include/libhidx/LibHidx.hh
         src/Device.cc include/libhidx/Device.hh
         src/InterfaceHandle.cc include/libhidx/InterfaceHandle.hh
