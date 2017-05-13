@@ -5,4 +5,7 @@ find_package(asio REQUIRED)
 
 add_subdirectory(libhidx)
 add_subdirectory(libhidx_server)
-add_subdirectory(libhidx_server_daemon)
+
+if(NOT WIN32)
+    add_subdirectory(libhidx_server_daemon)
+endif()
