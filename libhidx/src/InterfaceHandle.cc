@@ -52,7 +52,7 @@ namespace libhidx {
             msgDetachKernelDriver.set_interfacenumber(m_ifaceNumber);
             auto resDetachKernelDriver = m_lib.sendMessage<buffer::DetachKernelDriver>(MessageId::detachKernelDriver, msgDetachKernelDriver);
             if(resDetachKernelDriver.retvalue()){
-                throw ConnectionException{"Detaching the kernel driver from device failed: " + std::to_string(resDetachKernelDriver.retvalue())};
+                throw ConnectionException{resDetachKernelDriver.retvalue(), "Detaching the kernel driver from device failed: " + std::to_string(resDetachKernelDriver.retvalue())};
             }
         }
 #endif
