@@ -107,7 +107,7 @@ namespace libhidx {
         msgGetStringDescriptorAscii.set_descindex(index);
         auto response = m_lib.sendMessage<buffer::GetStringDescriptorAscii>(MessageId::getStringDescriptorAscii, msgGetStringDescriptorAscii);
         if(response.retvalue() < 0){
-            std::cerr << "Cannot retrieve string descriptor: " << std::to_string(response.retvalue()) << std::endl;
+            // TODO better reporting
             return "";
         }
         return response.data();

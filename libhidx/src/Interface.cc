@@ -146,8 +146,6 @@ namespace libhidx {
     }
 
     void Interface::runner() {
-        std::cerr << "thread running" << std::endl;
-
         auto handle = getHandle();
 
         while(!stopReadingRequest){
@@ -166,7 +164,6 @@ namespace libhidx {
                     m_listener();
                 }
             } else if(response.retvalue() == LIBUSB_ERROR_TIMEOUT){
-                std::cerr << "Interrupt transfer timeout" << std::endl;
             } else {
                 std::cerr << "Interrupt transfer fail" << std::endl;
             }
