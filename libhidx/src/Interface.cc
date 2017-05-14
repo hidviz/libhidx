@@ -206,6 +206,9 @@ namespace libhidx {
             if(!control){
                 return;
             }
+            if(control->getReportType() != hid::Control::Type::INPUT){
+                return;
+            }
             control->setData(data, reportId);
         });
     }
