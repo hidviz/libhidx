@@ -21,9 +21,13 @@
 #ifndef PROJECT_BUFFER_HELPER_HH
 #define PROJECT_BUFFER_HELPER_HH
 
+// TODO: Workaround for this bug: https://sourceforge.net/p/mingw-w64/bugs/611/
+#include <istream>
+
+#include <asio.hpp>
+
 #include <string>
 #include <stdexcept>
-#include <asio.hpp>
 
 namespace libhidx {
     /**

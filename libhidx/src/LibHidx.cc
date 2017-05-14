@@ -18,6 +18,9 @@
 // along with hidviz.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+// TODO: Workaround for this bug: https://sourceforge.net/p/mingw-w64/bugs/611/
+#include <thread>
+
 #include <libhidx/LibHidx.hh>
 
 #include <libhidx/server/Buffer.hh>
