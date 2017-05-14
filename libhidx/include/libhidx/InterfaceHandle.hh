@@ -32,9 +32,9 @@ namespace libhidx {
     class DeviceStrings;
 
     /// Exception thrown when there's an error when connecting to interface.
-    class ConnectionException : public std::runtime_error {
+    class ConnectionException : public std::system_error {
     public:
-        explicit ConnectionException(const std::string& err) : std::runtime_error{err}{}
+        explicit ConnectionException(int ev, const std::string& err) : std::system_error{ev, std::generic_category(),  err}{}
     };
 
     /**

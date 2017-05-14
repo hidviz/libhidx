@@ -92,7 +92,7 @@ namespace libhidx {
         std::tie(size, buffer) = data;
 
         if(data.first <= 0){
-            throw ConnectionException{"Libusb control transfer failed: " + std::to_string(data.first)};
+            throw ConnectionException{data.first, "Libusb control transfer failed: " + std::to_string(data.first)};
         }
 
         auto parser = Parser{reinterpret_cast<const uint8_t*>(buffer.data()), static_cast<size_t>(size)};

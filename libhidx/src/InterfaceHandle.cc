@@ -36,7 +36,7 @@ namespace libhidx {
         auto resOpen = m_lib.sendMessage<buffer::Open>(MessageId::open, msgOpen);
 
         if(resOpen.retvalue()){
-            throw ConnectionException{"Opening the device failed: " + std::to_string(resOpen.retvalue())};
+            throw ConnectionException{resOpen.retvalue(), "Opening the device failed: " + std::to_string(resOpen.retvalue())};
         }
 
         m_handle = resOpen.handle();
@@ -63,7 +63,7 @@ namespace libhidx {
         auto resClaimInterface = m_lib.sendMessage<buffer::ClaimInterface>(MessageId::claimInterface, msgClaimInterface);
 
         if(resClaimInterface.retvalue()){
-            throw ConnectionException{"Claiming the interface failed: " + std::to_string(resClaimInterface.retvalue())};
+            throw ConnectionException{resClaimInterface.retvalue(), "Claiming the interface failed: " + std::to_string(resClaimInterface.retvalue())};
         }
     }
 
