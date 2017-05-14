@@ -108,10 +108,13 @@ namespace libhidx {
     std::string Interface::getName() const {
         auto name = std::string{};
         const auto devStrings = m_device.getStrings();
-
-        name += devStrings.manufacturer;
-        name += " ";
-        name += devStrings.product;
+        if(devStrings.manufacturer.empty() && devStrings.product.empty()){
+            name += "Unknown device";
+        } else {
+            name += devStrings.manufacturer;
+            name += " ";
+            name += devStrings.product;
+        }
 
         name += " (interface ";
         name += std::to_string(getNumber());
