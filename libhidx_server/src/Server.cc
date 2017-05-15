@@ -29,6 +29,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <functional>
 
 using generic = asio::generic::stream_protocol;
 #ifdef __linux__
