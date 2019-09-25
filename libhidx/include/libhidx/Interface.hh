@@ -25,6 +25,7 @@
 #include <thread>
 #include <functional>
 #include <vector>
+#include <string>
 
 namespace libhidx {
 
