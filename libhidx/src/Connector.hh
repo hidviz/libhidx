@@ -67,7 +67,7 @@ namespace libhidx {
         std::string sendMessage(const std::string& message) override;
     };
 
-#ifdef __linux__
+#ifdef __unix__
     /**
      * UnixSocketConnector uses unix socket to commucicate with backend.
      *

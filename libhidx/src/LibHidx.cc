@@ -41,7 +41,7 @@ namespace libhidx {
         m_connector = std::make_unique<LocalConnector>();
     }
 
-#ifdef __linux__
+#ifdef __unix__
     void LibHidx::connectUnixSocket(){
         m_connector = std::make_unique<UnixSocketConnector>();
     }

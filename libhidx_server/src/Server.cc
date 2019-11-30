@@ -32,7 +32,7 @@
 #include <functional>
 
 using generic = asio::generic::stream_protocol;
-#ifdef __linux__
+#ifdef __unix__
 using local = asio::local::stream_protocol;
 #endif
 
@@ -365,7 +365,7 @@ namespace server {
 #include <asio/unyield.hpp>
 
     void run(std::string sockDir, bool watchParent) {
-#ifdef __linux__
+#ifdef __unix__
         using namespace std::chrono;
 
         std::string sockPath = sockDir + "/" + SOCKET_FILENAME;

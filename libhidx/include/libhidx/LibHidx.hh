@@ -67,11 +67,11 @@ namespace libhidx {
          */
         void connectLocal();
 
-#ifdef __linux__
+#ifdef __unix__
         /**
          * Prepares connection to server using unix domain socket.
          *
-         * AVAILABLE ONLY ON LINUX
+         * AVAILABLE ONLY ON LINUX/BSD
          *
          * Unix socket is preferred way for connecting on linux.
          */

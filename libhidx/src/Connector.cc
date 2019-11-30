@@ -22,13 +22,13 @@
 
 #include <libhidx/server/Server.hh>
 
-#ifdef __linux__
+#ifdef __unix__
 #include "subprocess.hh"
 #endif
 
 using generic = asio::generic::stream_protocol;
 
-#ifdef __linux__
+#ifdef __unix__
 using local = asio::local::stream_protocol;
 #endif
 
@@ -46,7 +46,7 @@ namespace libhidx {
         return server::cmd(message);
     }
 
-#ifdef __linux__
+#ifdef __unix__
 
     constexpr size_t length(const char* str)
     {
