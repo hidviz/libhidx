@@ -18,6 +18,7 @@
 // along with hidviz.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <array>
 #include <libhidx/Parser.hh>
 
 #include <libhidx/hid/Collection.hh>
