@@ -22,6 +22,7 @@
 #define LIBHIDX_USAGES_HH
 
 #include <string>
+#include <cstdint>
 
 namespace libhidx {
     /**
